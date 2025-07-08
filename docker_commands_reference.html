@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essential Docker Commands - Quick Reference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2496ed;
+            --docker-blue: #0db7ed;
+            --dark-blue: #1a365d;
+            --light-blue: #e6f7ff;
+            --success-green: #52c41a;
+            --warning-orange: #fa8c16;
+            --text-dark: #2c3e50;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-light: #e1e8ed;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --command-bg: #1e1e1e;
+            --command-text: #d4d4d4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--command-bg), var(--docker-blue));
+            color: white;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: var(--bg-white);
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--docker-blue));
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .commands-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .command-row {
+            display: grid;
+            grid-template-columns: 200px 1fr 300px;
+            gap: 20px;
+            padding: 15px 20px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            border-left: 4px solid var(--docker-blue);
+            align-items: center;
+        }
+
+        .command-name {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: bold;
+            color: var(--command-bg);
+            font-size: 0.9rem;
+        }
+
+        .command-desc {
+            color: var(--text-dark);
+        }
+
+        .command-example {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: var(--command-bg);
+            color: var(--command-text);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .quick-ref {
+            background: linear-gradient(135deg, #f6ffed, #d9f7be);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid var(--success-green);
+        }
+
+        .quick-ref h3 {
+            color: var(--success-green);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .ref-category {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .ref-category h4 {
+            color: var(--success-green);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .ref-command {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: var(--bg-light);
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 6px 0;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--docker-blue);
+        }
+
+        .ref-desc {
+            color: var(--text-dark);
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #e6f7ff, #bae7ff);
+            border: 2px solid var(--docker-blue);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .tip-box h4 {
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff7e6, #ffd591);
+            border: 2px solid var(--warning-orange);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .command-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .ref-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🐳 Essential Docker Commands</h1>
+            <div class="subtitle">Quick Reference Guide for Daily Use</div>
+        </header>
+
+        <section class="section">
+            <div class="section-header">
+                <span>📦</span>
+                <h2>Image Commands</h2>
+            </div>
+            <div class="section-content">
+                <div class="commands-grid">
+                    <div class="command-row">
+                        <div class="command-name">docker pull</div>
+                        <div class="command-desc">Download an image from registry</div>
+                        <div class="command-example">docker pull nginx:alpine</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker images</div>
+                        <div class="command-desc">List all local images</div>
+                        <div class="command-example">docker images</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker rmi</div>
+                        <div class="command-desc">Remove one or more images</div>
+                        <div class="command-example">docker rmi nginx:alpine</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker search</div>
+                        <div class="command-desc">Search Docker Hub for images</div>
+                        <div class="command-example">docker search python</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker tag</div>
+                        <div class="command-desc">Create a tag for an image</div>
+                        <div class="command-example">docker tag nginx:latest myapp:v1</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <span>🐳</span>
+                <h2>Container Commands</h2>
+            </div>
+            <div class="section-content">
+                <div class="commands-grid">
+                    <div class="command-row">
+                        <div class="command-name">docker run</div>
+                        <div class="command-desc">Create and start a new container</div>
+                        <div class="command-example">docker run -d -p 8080:80 nginx</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker ps</div>
+                        <div class="command-desc">List running containers</div>
+                        <div class="command-example">docker ps -a</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker stop</div>
+                        <div class="command-desc">Stop one or more containers</div>
+                        <div class="command-example">docker stop my-container</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker start</div>
+                        <div class="command-desc">Start one or more stopped containers</div>
+                        <div class="command-example">docker start my-container</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker restart</div>
+                        <div class="command-desc">Restart one or more containers</div>
+                        <div class="command-example">docker restart my-container</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker rm</div>
+                        <div class="command-desc">Remove one or more containers</div>
+                        <div class="command-example">docker rm my-container</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker exec</div>
+                        <div class="command-desc">Execute command in running container</div>
+                        <div class="command-example">docker exec -it container bash</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker logs</div>
+                        <div class="command-desc">Fetch container logs</div>
+                        <div class="command-example">docker logs -f my-container</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker cp</div>
+                        <div class="command-desc">Copy files between container and host</div>
+                        <div class="command-example">docker cp file.txt container:/path</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <span>🌐</span>
+                <h2>Network & Volume Commands</h2>
+            </div>
+            <div class="section-content">
+                <div class="commands-grid">
+                    <div class="command-row">
+                        <div class="command-name">docker network ls</div>
+                        <div class="command-desc">List all networks</div>
+                        <div class="command-example">docker network ls</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker network create</div>
+                        <div class="command-desc">Create a new network</div>
+                        <div class="command-example">docker network create my-net</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker volume ls</div>
+                        <div class="command-desc">List all volumes</div>
+                        <div class="command-example">docker volume ls</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker volume create</div>
+                        <div class="command-desc">Create a new volume</div>
+                        <div class="command-example">docker volume create my-vol</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <span>🔨</span>
+                <h2>Build & Registry Commands</h2>
+            </div>
+            <div class="section-content">
+                <div class="commands-grid">
+                    <div class="command-row">
+                        <div class="command-name">docker build</div>
+                        <div class="command-desc">Build image from Dockerfile</div>
+                        <div class="command-example">docker build -t myapp:latest .</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker push</div>
+                        <div class="command-desc">Push image to registry</div>
+                        <div class="command-example">docker push username/myapp:latest</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker login</div>
+                        <div class="command-desc">Log in to Docker registry</div>
+                        <div class="command-example">docker login</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker logout</div>
+                        <div class="command-desc">Log out from Docker registry</div>
+                        <div class="command-example">docker logout</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <span>⚙️</span>
+                <h2>System Commands</h2>
+            </div>
+            <div class="section-content">
+                <div class="commands-grid">
+                    <div class="command-row">
+                        <div class="command-name">docker info</div>
+                        <div class="command-desc">Display system information</div>
+                        <div class="command-example">docker info</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker version</div>
+                        <div class="command-desc">Show Docker version information</div>
+                        <div class="command-example">docker --version</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker stats</div>
+                        <div class="command-desc">Display live resource usage</div>
+                        <div class="command-example">docker stats</div>
+                    </div>
+                    <div class="command-row">
+                        <div class="command-name">docker system prune</div>
+                        <div class="command-desc">Remove unused resources</div>
+                        <div class="command-example">docker system prune -a</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="quick-ref">
+            <h3>🚀 Most Common Usage Patterns</h3>
+            <div class="ref-grid">
+                <div class="ref-category">
+                    <h4>Quick Start</h4>
+                    <div class="ref-command">
+                        <span>docker run -d nginx</span>
+                        <span class="ref-desc">Start web server</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>docker ps</span>
+                        <span class="ref-desc">Check status</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>docker stop container_id</span>
+                        <span class="ref-desc">Stop it</span>
+                    </div>
+                </div>
+
+                <div class="ref-category">
+                    <h4>Interactive Mode</h4>
+                    <div class="ref-command">
+                        <span>docker run -it ubuntu bash</span>
+                        <span class="ref-desc">Get shell</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>docker exec -it container bash</span>
+                        <span class="ref-desc">Connect to running</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>exit</span>
+                        <span class="ref-desc">Leave container</span>
+                    </div>
+                </div>
+
+                <div class="ref-category">
+                    <h4>With Ports & Volumes</h4>
+                    <div class="ref-command">
+                        <span>docker run -p 8080:80 nginx</span>
+                        <span class="ref-desc">Port mapping</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>docker run -v /host:/container nginx</span>
+                        <span class="ref-desc">Volume mount</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>docker run -e VAR=value nginx</span>
+                        <span class="ref-desc">Environment</span>
+                    </div>
+                </div>
+
+                <div class="ref-category">
+                    <h4>Cleanup Commands</h4>
+                    <div class="ref-command">
+                        <span>docker container prune</span>
+                        <span class="ref-desc">Remove stopped</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>docker image prune</span>
+                        <span class="ref-desc">Remove unused images</span>
+                    </div>
+                    <div class="ref-command">
+                        <span>docker system prune -a</span>
+                        <span class="ref-desc">Clean everything</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tip-box">
+            <h4>💡 Pro Tips</h4>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+                <li><strong>Use specific tags:</strong> <code>nginx:1.21-alpine</code> instead of <code>nginx:latest</code></li>
+                <li><strong>Name your containers:</strong> <code>--name my-web</code> for easy reference</li>
+                <li><strong>Clean up regularly:</strong> <code>docker system prune</code> to free disk space</li>
+                <li><strong>Check logs for debugging:</strong> <code>docker logs container_name</code></li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <h4>⚠️ Important Notes</h4>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+                <li><strong>Windows paths:</strong> Use forward slashes or escape backslashes</li>
+                <li><strong>Port conflicts:</strong> Each port can only be used by one container</li>
+                <li><strong>Data persistence:</strong> Use volumes to keep data after container removal</li>
+                <li><strong>Resource limits:</strong> Monitor CPU and memory usage with <code>docker stats</code></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

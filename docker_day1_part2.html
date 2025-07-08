@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Day 1 - Part 2: Docker Architecture Deep Dive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2496ed;
+            --docker-blue: #0db7ed;
+            --dark-blue: #1a365d;
+            --light-blue: #e6f7ff;
+            --success-green: #52c41a;
+            --warning-orange: #fa8c16;
+            --error-red: #ff4d4f;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-light: #e1e8ed;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+            --purple: #722ed1;
+            --green: #52c41a;
+            --orange: #fa8c16;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--docker-blue));
+            color: white;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #52c41a, #73d13d);
+            height: 100%;
+            width: 33.33%;
+            border-radius: 4px;
+        }
+
+        .learning-objectives {
+            background: var(--bg-white);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--success-green);
+        }
+
+        .learning-objectives h2 {
+            color: var(--success-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .objective-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--light-blue);
+            border-radius: 10px;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            background: var(--success-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .section {
+            background: var(--bg-white);
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--docker-blue));
+            color: white;
+            padding: 25px 30px;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .architecture-diagram {
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .docker-host {
+            background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+            border: 3px solid var(--docker-blue);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px auto;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .docker-host::before {
+            content: "🐳 Docker Host";
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: var(--docker-blue);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .daemon-section {
+            background: linear-gradient(135deg, #fff7e6, #ffd591);
+            border: 2px solid var(--orange);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .daemon-section h4 {
+            color: var(--dark-blue);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .component-box {
+            background: var(--bg-white);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .component-box.container {
+            background: linear-gradient(135deg, #f9f0ff, #efdbff);
+            border-color: var(--purple);
+        }
+
+        .component-box.image {
+            background: linear-gradient(135deg, #e6f7ff, #bae7ff);
+            border-color: var(--docker-blue);
+        }
+
+        .component-box.network {
+            background: linear-gradient(135deg, #f6ffed, #d9f7be);
+            border-color: var(--green);
+        }
+
+        .component-box.volume {
+            background: linear-gradient(135deg, #fff1f0, #ffccc7);
+            border-color: var(--error-red);
+        }
+
+        .client-boxes {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .client-box {
+            background: linear-gradient(135deg, var(--bg-white), var(--light-blue));
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid var(--primary-blue);
+            text-align: center;
+            min-width: 200px;
+            box-shadow: var(--shadow);
+        }
+
+        .arrows {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 2rem;
+            color: var(--docker-blue);
+        }
+
+        .layer-diagram {
+            background: var(--bg-white);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .image-layers {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            margin: 20px 0;
+        }
+
+        .layer {
+            width: 300px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+        }
+
+        .layer.base {
+            background: linear-gradient(135deg, #e6f7ff, #bae7ff);
+            border-color: var(--docker-blue);
+        }
+
+        .layer.runtime {
+            background: linear-gradient(135deg, #f6ffed, #d9f7be);
+            border-color: var(--green);
+        }
+
+        .layer.deps {
+            background: linear-gradient(135deg, #fff7e6, #ffd591);
+            border-color: var(--orange);
+        }
+
+        .layer.app {
+            background: linear-gradient(135deg, #f9f0ff, #efdbff);
+            border-color: var(--purple);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .benefit-card {
+            background: linear-gradient(135deg, var(--bg-white), var(--light-blue));
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+        }
+
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .benefit-card h4 {
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .comparison-table th {
+            background: var(--primary-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .flow-diagram {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .flow-step {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--docker-blue);
+            min-width: 150px;
+            flex: 1;
+        }
+
+        .step-number {
+            background: var(--docker-blue);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--docker-blue);
+            margin: 0 10px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff7e6, #ffd591);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid var(--warning-orange);
+        }
+
+        .highlight-box h4 {
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+        }
+
+        .example-box {
+            background: #f0f8ff;
+            border-left: 4px solid var(--docker-blue);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .registry-section {
+            background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid var(--docker-blue);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .docker-host {
+                padding: 15px;
+            }
+
+            .client-boxes {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .layer {
+                width: 250px;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .components-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🐳 Docker Deep Dive - Day 1</h1>
+            <div class="subtitle">Part 2: Docker Architecture Deep Dive</div>
+            <div class="subtitle">Duration: 11:15 AM - 12:15 PM | Understanding How Docker Works</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <small>Part 2 of 6 - Architecture & Components</small>
+        </header>
+
+        <section class="learning-objectives">
+            <h2>🎯 Learning Objectives</h2>
+            <p>By the end of this session, you will understand:</p>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Docker's client-server architecture and how components communicate</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>The role of Docker Daemon, Client, and Registry in the ecosystem</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>How Docker images are built using layers for efficiency</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Docker Desktop interface and Windows 10 specific features</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🏛️ Docker Architecture Overview</h3>
+            </div>
+            <div class="section-content">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Docker uses a <strong>client-server architecture</strong> where the Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and managing your containers.</p>
+
+                <div class="architecture-diagram">
+                    <h4>🔧 Complete Docker Architecture</h4>
+                    
+                    <div class="client-boxes">
+                        <div class="client-box">
+                            <h5>🖥️ Docker Client</h5>
+                            <p><strong>docker CLI</strong></p>
+                            <p>Command line interface</p>
+                        </div>
+                        <div class="client-box">
+                            <h5>🖱️ Docker Desktop</h5>
+                            <p><strong>GUI Application</strong></p>
+                            <p>Visual interface for Windows</p>
+                        </div>
+                        <div class="client-box">
+                            <h5>🔌 Docker API</h5>
+                            <p><strong>REST API</strong></p>
+                            <p>Programmatic access</p>
+                        </div>
+                    </div>
+
+                    <div class="arrows">⬇️ ⬇️ ⬇️</div>
+                    <div style="text-align: center; margin: 10px 0; font-weight: bold; color: var(--docker-blue);">
+                        Communication via REST API over UNIX socket or network
+                    </div>
+                    <div class="arrows">⬇️ ⬇️ ⬇️</div>
+
+                    <div class="docker-host">
+                        <div class="daemon-section">
+                            <h4>⚙️ Docker Daemon (dockerd)</h4>
+                            <p style="text-align: center; margin-bottom: 15px;"><em>The brain of Docker - manages everything</em></p>
+                            
+                            <div class="components-grid">
+                                <div class="component-box container">
+                                    <strong>🐳 Containers</strong>
+                                    <p>Running instances</p>
+                                </div>
+                                <div class="component-box image">
+                                    <strong>📦 Images</strong>
+                                    <p>Templates</p>
+                                </div>
+                                <div class="component-box network">
+                                    <strong>🌐 Networks</strong>
+                                    <p>Connectivity</p>
+                                </div>
+                                <div class="component-box volume">
+                                    <strong>💾 Volumes</strong>
+                                    <p>Data storage</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="arrows">⬇️ ⬆️</div>
+                    <div style="text-align: center; margin: 10px 0; font-weight: bold; color: var(--docker-blue);">
+                        Pull/Push Images
+                    </div>
+
+                    <div class="registry-section">
+                        <h4 style="text-align: center; color: var(--dark-blue);">🌐 Docker Registry (Docker Hub)</h4>
+                        <p style="text-align: center;"><em>Cloud storage for Docker images</em></p>
+                        <div style="display: flex; justify-content: space-around; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
+                            <span>📋 Official Images</span>
+                            <span>👥 Community Images</span>
+                            <span>🔒 Private Repositories</span>
+                            <span>🤖 Automated Builds</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🔍 Key Insight</h4>
+                    <p><strong>Think of it like a restaurant:</strong></p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>Docker Client</strong> = Customer (places orders)</li>
+                        <li><strong>Docker Daemon</strong> = Kitchen (prepares and serves food)</li>
+                        <li><strong>Docker Registry</strong> = Grocery store (provides ingredients/recipes)</li>
+                        <li><strong>Images</strong> = Recipes (instructions to make dishes)</li>
+                        <li><strong>Containers</strong> = Prepared dishes (actual food served)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🧩 Core Components Deep Dive</h3>
+            </div>
+            <div class="section-content">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🖥️</span>
+                        <h4>1. Docker Client</h4>
+                        <p><strong>The interface you interact with</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Sends commands to Docker daemon</li>
+                            <li>Can be CLI, Docker Desktop, or API</li>
+                            <li>Doesn't do actual work - just communicates</li>
+                            <li>Can connect to remote Docker hosts</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">⚙️</span>
+                        <h4>2. Docker Daemon</h4>
+                        <p><strong>The engine that powers Docker</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Listens for Docker API requests</li>
+                            <li>Manages containers, images, networks</li>
+                            <li>Runs as background service</li>
+                            <li>Handles resource allocation</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">📦</span>
+                        <h4>3. Docker Images</h4>
+                        <p><strong>Read-only templates for containers</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Built from Dockerfile instructions</li>
+                            <li>Stored in layers for efficiency</li>
+                            <li>Immutable once created</li>
+                            <li>Can be shared via registries</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🐳</span>
+                        <h4>4. Docker Containers</h4>
+                        <p><strong>Running instances of images</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Isolated processes with own filesystem</li>
+                            <li>Can be started, stopped, moved</li>
+                            <li>Share host OS kernel</li>
+                            <li>Ephemeral by default</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🌐</span>
+                        <h4>5. Docker Registry</h4>
+                        <p><strong>Storage system for images</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Docker Hub is default public registry</li>
+                            <li>Can host private registries</li>
+                            <li>Version control for images</li>
+                            <li>Automated build integration</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🔧</span>
+                        <h4>6. Supporting Components</h4>
+                        <p><strong>Networks, volumes, and more</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Networks: Container communication</li>
+                            <li>Volumes: Persistent data storage</li>
+                            <li>Plugins: Extend Docker functionality</li>
+                            <li>Compose: Multi-container applications</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flow-diagram">
+                    <h4>🔄 Communication Flow</h4>
+                    <p style="text-align: center; margin-bottom: 20px;">How components work together when you run a container:</p>
+                    
+                    <div class="flow-steps">
+                        <div class="flow-step">
+                            <div class="step-number">1</div>
+                            <strong>You type command</strong>
+                            <p><code>docker run nginx</code></p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">2</div>
+                            <strong>Client sends API call</strong>
+                            <p>To Docker daemon</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">3</div>
+                            <strong>Daemon checks image</strong>
+                            <p>Local storage first</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">4</div>
+                            <strong>Pulls from registry</strong>
+                            <p>If not found locally</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">5</div>
+                            <strong>Creates container</strong>
+                            <p>From image template</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">6</div>
+                            <strong>Starts container</strong>
+                            <p>Application runs!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>📚 Image Layers Concept</h3>
+            </div>
+            <div class="section-content">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Docker images are built using a <strong>layered architecture</strong>. Each layer represents a set of file changes, and layers are stacked on top of each other to form the complete image.</p>
+
+                <div class="layer-diagram">
+                    <h4 style="text-align: center; margin-bottom: 20px;">🏗️ How Image Layers Work</h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center;">
+                        <div>
+                            <h5 style="text-align: center; margin-bottom: 15px;">Example: Python Web App</h5>
+                            <div class="image-layers">
+                                <div class="layer app">📱 Your Application Code</div>
+                                <div class="layer deps">📚 Python Dependencies (Flask, requests)</div>
+                                <div class="layer runtime">🐍 Python Runtime (3.9)</div>
+                                <div class="layer base">🐧 Base OS (Ubuntu 20.04)</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h5 style="color: var(--dark-blue); margin-bottom: 15px;">✅ Benefits of Layers:</h5>
+                            <ul style="line-height: 1.8;">
+                                <li><strong>🔄 Reusability:</strong> Multiple images can share the same base layers</li>
+                                <li><strong>💾 Storage Efficiency:</strong> Only store unique layers</li>
+                                <li><strong>⚡ Faster Builds:</strong> Only rebuild changed layers</li>
+                                <li><strong>🚀 Faster Downloads:</strong> Only download new layers</li>
+                                <li><strong>📦 Caching:</strong> Layer caching speeds up operations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h4>💡 Real-World Example: Layer Sharing</h4>
+                    <p><strong>Scenario:</strong> You have 5 different Python applications:</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong>App 1</strong><br>
+                            Flask Web App
+                        </div>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong>App 2</strong><br>
+                            Django API
+                        </div>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong>App 3</strong><br>
+                            FastAPI Service
+                        </div>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong>App 4</strong><br>
+                            Data Processor
+                        </div>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong>App 5</strong><br>
+                            ML Model Server
+                        </div>
+                    </div>
+                    <p><strong>Without Layers:</strong> Each app = 500MB → Total = 2.5GB storage</p>
+                    <p><strong>With Layers:</strong> Shared base (Ubuntu + Python) = 200MB, Each app = 50MB unique → Total = 450MB storage!</p>
+                    <p style="color: var(--success-green); font-weight: bold;">💰 Result: 80% storage savings!</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🔧 How Docker Manages Layers</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                        <div>
+                            <h5>📖 Read-Only Layers</h5>
+                            <ul style="margin-top: 10px;">
+                                <li>Image layers are immutable</li>
+                                <li>Shared between containers</li>
+                                <li>Cached for efficiency</li>
+                                <li>Identified by SHA256 hash</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5>✏️ Container Layer</h5>
+                            <ul style="margin-top: 10px;">
+                                <li>Thin read-write layer on top</li>
+                                <li>Stores container-specific changes</li>
+                                <li>Deleted when container is removed</li>
+                                <li>Copy-on-write mechanism</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+# Example: View image layers
+docker history nginx:latest
+
+# Output shows each layer:
+IMAGE         CREATED      CREATED BY                                      SIZE
+f6d0b4cd        2 weeks ago  /bin/sh -c #(nop)  CMD ["nginx" "-g" "daemon…   0B
+&lt;missing&gt;     2 weeks ago  /bin/sh -c #(nop)  STOPSIGNAL SIGQUIT           0B
+&lt;missing&gt;     2 weeks ago  /bin/sh -c #(nop)  EXPOSE 80                    0B
+&lt;missing&gt;     2 weeks ago  /bin/sh -c #(nop) COPY file:65504f71f5855ca0…   4.61kB
+&lt;missing&gt;     2 weeks ago  /bin/sh -c set -x && groupadd --system --gid…   112MB
+&lt;missing&gt;     2 weeks ago  /bin/sh -c #(nop)  ENV PKG_RELEASE=1~bullseye    0B
+&lt;missing&gt;     3 weeks ago  /bin/sh -c #(nop)  LABEL maintainer=NGINX Do…   0B
+&lt;missing&gt;     3 weeks ago  /bin/sh -c #(nop)  CMD ["bash"]                 0B
+&lt;missing&gt;     3 weeks ago  /bin/sh -c #(nop) ADD file:09675d11695f65c55…   80.4MB
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🖥️ Docker Desktop on Windows 10</h3>
+            </div>
+            <div class="section-content">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Docker Desktop provides a user-friendly graphical interface for managing Docker on Windows 10, with integrated WSL 2 support for optimal performance.</p>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🖱️</span>
+                        <h4>GUI Dashboard</h4>
+                        <p><strong>Visual container management</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>View running containers</li>
+                            <li>Manage images and volumes</li>
+                            <li>Monitor resource usage</li>
+                            <li>Access container logs</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🐧</span>
+                        <h4>WSL 2 Integration</h4>
+                        <p><strong>Linux compatibility layer</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Near-native Linux performance</li>
+                            <li>Full system call compatibility</li>
+                            <li>Faster file I/O operations</li>
+                            <li>Better resource efficiency</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">⚙️</span>
+                        <h4>Easy Configuration</h4>
+                        <p><strong>Settings management</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Resource allocation (CPU, RAM)</li>
+                            <li>Network settings</li>
+                            <li>File sharing permissions</li>
+                            <li>Registry authentication</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🔄</span>
+                        <h4>Automatic Updates</h4>
+                        <p><strong>Stay current effortlessly</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Engine updates</li>
+                            <li>Security patches</li>
+                            <li>Feature enhancements</li>
+                            <li>Kubernetes integration</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h4>🖼️ Docker Desktop Interface Tour</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                        <div>
+                            <h5>📊 Main Dashboard</h5>
+                            <ul style="margin-top: 10px;">
+                                <li><strong>Containers/Apps:</strong> View all running containers</li>
+                                <li><strong>Images:</strong> Manage downloaded images</li>
+                                <li><strong>Volumes:</strong> Persistent data storage</li>
+                                <li><strong>Dev Environments:</strong> Development setups</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5>⚙️ Settings Panel</h5>
+                            <ul style="margin-top: 10px;">
+                                <li><strong>Resources:</strong> CPU, Memory, Disk limits</li>
+                                <li><strong>Docker Engine:</strong> Daemon configuration</li>
+                                <li><strong>Kubernetes:</strong> Enable local cluster</li>
+                                <li><strong>Software Updates:</strong> Version management</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>💡 Windows 10 Specific Features</h4>
+                    <div style="margin-top: 15px;">
+                        <h5>🔗 WSL 2 Backend Benefits:</h5>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>Performance:</strong> 2-5x faster than Hyper-V backend</li>
+                            <li><strong>Compatibility:</strong> Full Linux kernel, not emulated</li>
+                            <li><strong>Resource Usage:</strong> Dynamic memory allocation</li>
+                            <li><strong>File System:</strong> Faster bind mounts and file operations</li>
+                        </ul>
+                        
+                        <h5 style="margin-top: 15px;">🔄 Switching Between Backends:</h5>
+                        <p style="margin: 10px 0;"><strong>WSL 2:</strong> Best for most users (default) - Modern, fast, efficient</p>
+                        <p style="margin: 10px 0;"><strong>Hyper-V:</strong> Legacy option - Use only if WSL 2 unavailable</p>
+                    </div>
+                </div>
+
+                <div class="registry-section">
+                    <h4 style="text-align: center; color: var(--dark-blue);">🚀 Getting Started with Docker Desktop</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                        <div style="background: var(--bg-white); padding: 15px; border-radius: 10px;">
+                            <h5>1️⃣ System Tray Icon</h5>
+                            <p>🐳 Docker whale icon shows status</p>
+                            <p>Right-click for quick actions</p>
+                        </div>
+                        <div style="background: var(--bg-white); padding: 15px; border-radius: 10px;">
+                            <h5>2️⃣ Dashboard Access</h5>
+                            <p>📊 Click icon to open GUI</p>
+                            <p>Visual container management</p>
+                        </div>
+                        <div style="background: var(--bg-white); padding: 15px; border-radius: 10px;">
+                            <h5>3️⃣ Terminal Integration</h5>
+                            <p>💻 Works with PowerShell/CMD</p>
+                            <p>Same commands as Linux</p>
+                        </div>
+                        <div style="background: var(--bg-white); padding: 15px; border-radius: 10px;">
+                            <h5>4️⃣ VS Code Integration</h5>
+                            <p>🔧 Dev Containers extension</p>
+                            <p>Develop inside containers</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🔗 Component Interaction Examples</h3>
+            </div>
+            <div class="section-content">
+                <div class="flow-diagram">
+                    <h4>📋 Scenario 1: Running Your First Container</h4>
+                    <div class="code-block">
+# You type this command in Windows PowerShell:
+docker run -d -p 8080:80 --name my-web nginx:latest
+                    </div>
+                    
+                    <div class="flow-steps">
+                        <div class="flow-step">
+                            <div class="step-number">1</div>
+                            <strong>Docker Client</strong>
+                            <p>Parses your command</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">2</div>
+                            <strong>API Call</strong>
+                            <p>Sends HTTP request to daemon</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">3</div>
+                            <strong>Image Check</strong>
+                            <p>Daemon looks for nginx:latest locally</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">4</div>
+                            <strong>Registry Pull</strong>
+                            <p>Downloads from Docker Hub if missing</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">5</div>
+                            <strong>Container Creation</strong>
+                            <p>Creates container with specified config</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">6</div>
+                            <strong>Service Running</strong>
+                            <p>Nginx serves on localhost:8080</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-diagram">
+                    <h4>📋 Scenario 2: Building a Custom Image</h4>
+                    <div class="code-block">
+# You create a Dockerfile and run:
+docker build -t my-app:1.0 .
+                    </div>
+                    
+                    <div class="flow-steps">
+                        <div class="flow-step">
+                            <div class="step-number">1</div>
+                            <strong>Build Context</strong>
+                            <p>Client sends files to daemon</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">2</div>
+                            <strong>Read Dockerfile</strong>
+                            <p>Daemon parses build instructions</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">3</div>
+                            <strong>Layer Creation</strong>
+                            <p>Each instruction creates a layer</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">4</div>
+                            <strong>Cache Check</strong>
+                            <p>Reuses existing layers when possible</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">5</div>
+                            <strong>Image Tagged</strong>
+                            <p>Final image gets name and tag</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">6</div>
+                            <strong>Ready to Use</strong>
+                            <p>Image available for containers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-table">
+                    <h4 style="margin-bottom: 15px;">📊 Docker Desktop vs Docker Engine Comparison</h4>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Docker Desktop (Windows)</th>
+                                <th>Docker Engine (Linux)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>User Interface</strong></td>
+                                <td>🖱️ GUI + CLI</td>
+                                <td>💻 CLI only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Installation</strong></td>
+                                <td>📦 Single installer package</td>
+                                <td>⚙️ Package manager setup</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Platform</strong></td>
+                                <td>🖥️ Windows 10/11, macOS</td>
+                                <td>🐧 Linux distributions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Backend</strong></td>
+                                <td>🐧 WSL 2 / Hyper-V</td>
+                                <td>🔧 Native kernel features</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Management</strong></td>
+                                <td>⚙️ GUI settings panel</td>
+                                <td>📝 Configuration files</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kubernetes</strong></td>
+                                <td>✅ Built-in option</td>
+                                <td>🔧 Separate installation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Updates</strong></td>
+                                <td>🔄 Automatic notifications</td>
+                                <td>📦 Manual package updates</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>👨‍💻 Development, learning</td>
+                                <td>🖥️ Production servers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="learning-objectives">
+            <h2>📚 Part 2 Summary</h2>
+            <p>Excellent! You now have a solid understanding of Docker's architecture. Here's what you've mastered:</p>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Client-Server Architecture:</strong> Client sends commands, Daemon executes them</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Core Components:</strong> Client, Daemon, Images, Containers, Registry</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Image Layers:</strong> Efficient storage and sharing through layered architecture</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Docker Desktop:</strong> Windows 10 GUI with WSL 2 integration</span>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 25px;">
+                <h4>🎯 Coming Up Next (1:15 PM - 2:15 PM)</h4>
+                <p><strong>Part 3: Docker Desktop Installation & Setup</strong></p>
+                <p>Hands-on installation walkthrough, Windows 10 configuration, WSL 2 setup, and post-installation verification. Get your development environment ready!</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

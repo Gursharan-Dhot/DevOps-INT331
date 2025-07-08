@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Day 1 - Part 1: Container Concepts & Theory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2496ed;
+            --docker-blue: #0db7ed;
+            --dark-blue: #1a365d;
+            --light-blue: #e6f7ff;
+            --success-green: #52c41a;
+            --warning-orange: #fa8c16;
+            --error-red: #ff4d4f;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-light: #e1e8ed;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--docker-blue));
+            color: white;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #52c41a, #73d13d);
+            height: 100%;
+            width: 16.67%;
+            border-radius: 4px;
+        }
+
+        .learning-objectives {
+            background: var(--bg-white);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--success-green);
+        }
+
+        .learning-objectives h2 {
+            color: var(--success-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .objective-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--light-blue);
+            border-radius: 10px;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            background: var(--success-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .section {
+            background: var(--bg-white);
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--docker-blue));
+            color: white;
+            padding: 25px 30px;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-box {
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .traditional-deploy {
+            background: linear-gradient(135deg, #fef5e7, #ffd591);
+            border: 2px solid var(--warning-orange);
+        }
+
+        .container-deploy {
+            background: linear-gradient(135deg, #e6f7ff, #91d5ff);
+            border: 2px solid var(--docker-blue);
+        }
+
+        .comparison-box h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .comparison-box ul {
+            text-align: left;
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+
+        .comparison-box li {
+            margin-bottom: 8px;
+        }
+
+        .deployment-diagram {
+            margin: 30px 0;
+            text-align: center;
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .diagram-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .server-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 200px;
+        }
+
+        .server-stack h5 {
+            margin-bottom: 15px;
+            color: var(--dark-blue);
+            font-size: 1.1rem;
+        }
+
+        .layer {
+            background: var(--bg-white);
+            border: 2px solid var(--border-light);
+            padding: 12px 20px;
+            margin: 3px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 180px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .layer.os { 
+            background: linear-gradient(135deg, #e6f7ff, #bae7ff);
+            font-weight: bold;
+        }
+        .layer.app { 
+            background: linear-gradient(135deg, #f6ffed, #d9f7be);
+        }
+        .layer.container-engine { 
+            background: linear-gradient(135deg, #fff1f0, #ffccc7);
+            font-weight: bold;
+        }
+        .layer.container { 
+            background: linear-gradient(135deg, #f9f0ff, #efdbff);
+            font-size: 0.8rem;
+            padding: 8px 15px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .benefit-card {
+            background: linear-gradient(135deg, var(--bg-white), var(--light-blue));
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+        }
+
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .benefit-card h4 {
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .vs-comparison {
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .vs-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-top: 15px;
+        }
+
+        .vs-table th,
+        .vs-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .vs-table th {
+            background: var(--primary-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        .vs-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .analogy-section {
+            background: var(--light-blue);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .analogy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .analogy-card {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--docker-blue);
+        }
+
+        .example-box {
+            background: #f0f8ff;
+            border-left: 4px solid var(--docker-blue);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff7e6, #ffd591);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid var(--warning-orange);
+        }
+
+        .highlight-box h4 {
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+
+            .diagram-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .vs-table {
+                font-size: 0.9rem;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .layer {
+                width: 160px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🐳 Docker Deep Dive - Day 1</h1>
+            <div class="subtitle">Part 1: Container Concepts & Theory</div>
+            <div class="subtitle">Duration: 10:00 AM - 11:00 AM | Windows 10 + Docker Desktop</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <small>Part 1 of 6 - Foundation Building</small>
+        </header>
+
+        <section class="learning-objectives">
+            <h2>🎯 Learning Objectives</h2>
+            <p>By the end of this session, you will understand:</p>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>What containers are and why they revolutionize software deployment</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Key differences between traditional and containerized deployments</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Containers vs Virtual Machines - when to use what</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Real-world benefits and use cases of containerization</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🤔 What Are Containers?</h3>
+            </div>
+            <div class="section-content">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;"><strong>Containers</strong> are lightweight, portable, and self-sufficient units that package an application along with all its dependencies, libraries, and configuration files needed to run it.</p>
+                
+                <div class="analogy-section">
+                    <h4>🔍 Think of containers like these real-world examples:</h4>
+                    <div class="analogy-grid">
+                        <div class="analogy-card">
+                            <span class="benefit-icon">📦</span>
+                            <h4>Shipping Container</h4>
+                            <p>Just like a shipping container holds goods and can be moved anywhere in the world, a software container holds your app and can run anywhere.</p>
+                        </div>
+                        <div class="analogy-card">
+                            <span class="benefit-icon">🏠</span>
+                            <h4>Apartment Building</h4>
+                            <p>Multiple apps (tenants) can live on the same server (building) without interfering with each other.</p>
+                        </div>
+                        <div class="analogy-card">
+                            <span class="benefit-icon">🎒</span>
+                            <h4>Travel Backpack</h4>
+                            <p>Everything your app needs is packed inside - no matter where you go, you have everything you need.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h4>💡 Simple Example</h4>
+                    <p>Imagine you built a Python web application. In a container, you would package:</p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>Your Python code</strong> - the application itself</li>
+                        <li><strong>Python runtime</strong> - the Python interpreter</li>
+                        <li><strong>Dependencies</strong> - Flask, requests, numpy, etc.</li>
+                        <li><strong>Configuration</strong> - environment variables, config files</li>
+                        <li><strong>System libraries</strong> - anything else needed to run</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>Result:</strong> A single package that runs identically on your laptop, test server, and production cloud!</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>⚡ Traditional vs Container Deployment</h3>
+            </div>
+            <div class="section-content">
+                <div class="comparison-container">
+                    <div class="comparison-box traditional-deploy">
+                        <h4>❌ Traditional Deployment</h4>
+                        <p><strong>The Old Way - Problems:</strong></p>
+                        <ul>
+                            <li><strong>Resource conflicts:</strong> Apps compete for memory, CPU</li>
+                            <li><strong>"Works on my machine":</strong> Different environments = different bugs</li>
+                            <li><strong>Dependency hell:</strong> App A needs Python 3.8, App B needs 3.9</li>
+                            <li><strong>Hard to scale:</strong> Must scale entire server</li>
+                            <li><strong>Slow deployments:</strong> Manual setup, configuration drift</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-box container-deploy">
+                        <h4>✅ Container Deployment</h4>
+                        <p><strong>The New Way - Solutions:</strong></p>
+                        <ul>
+                            <li><strong>Isolated environments:</strong> Each app in its own space</li>
+                            <li><strong>Consistent everywhere:</strong> Same container, same behavior</li>
+                            <li><strong>No conflicts:</strong> Each container has its own dependencies</li>
+                            <li><strong>Easy scaling:</strong> Start/stop individual containers</li>
+                            <li><strong>Fast deployments:</strong> Pull image, run container, done!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="deployment-diagram">
+                    <h4>📊 Visual Architecture Comparison</h4>
+                    <div class="diagram-container">
+                        <div class="server-stack">
+                            <h5>❌ Traditional Server</h5>
+                            <div class="layer app">App A + Dependencies</div>
+                            <div class="layer app">App B + Dependencies</div>
+                            <div class="layer app">App C + Dependencies</div>
+                            <div class="layer os">Operating System</div>
+                            <div class="layer">Physical Server</div>
+                        </div>
+                        <div class="server-stack">
+                            <h5>✅ Containerized Server</h5>
+                            <div class="layer container">Container A</div>
+                            <div class="layer container">Container B</div>
+                            <div class="layer container">Container C</div>
+                            <div class="layer container-engine">Docker Engine</div>
+                            <div class="layer os">Operating System</div>
+                            <div class="layer">Physical Server</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🎯 Key Insight</h4>
+                    <p><strong>Traditional:</strong> Multiple apps share the same environment and can interfere with each other.</p>
+                    <p><strong>Containers:</strong> Each app lives in its own isolated environment, but they all share the same OS kernel efficiently.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🔄 Containers vs Virtual Machines</h3>
+            </div>
+            <div class="section-content">
+                <div class="deployment-diagram">
+                    <h4>🏗️ Architecture Comparison</h4>
+                    <div class="diagram-container">
+                        <div class="server-stack">
+                            <h5>Virtual Machines</h5>
+                            <div class="layer app">VM 1: Guest OS + App</div>
+                            <div class="layer app">VM 2: Guest OS + App</div>
+                            <div class="layer app">VM 3: Guest OS + App</div>
+                            <div class="layer container-engine">Hypervisor (VMware, VirtualBox)</div>
+                            <div class="layer os">Host Operating System</div>
+                            <div class="layer">Physical Server</div>
+                        </div>
+                        <div class="server-stack">
+                            <h5>Containers</h5>
+                            <div class="layer container">Container 1: App + Libs</div>
+                            <div class="layer container">Container 2: App + Libs</div>
+                            <div class="layer container">Container 3: App + Libs</div>
+                            <div class="layer container-engine">Container Runtime (Docker)</div>
+                            <div class="layer os">Host Operating System</div>
+                            <div class="layer">Physical Server</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vs-comparison">
+                    <h4>📋 Detailed Feature Comparison</h4>
+                    <table class="vs-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Virtual Machines</th>
+                                <th>Containers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Resource Usage</strong></td>
+                                <td>🐌 Heavy (2-8GB RAM per VM)</td>
+                                <td>🚀 Lightweight (10-100MB RAM per container)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Startup Time</strong></td>
+                                <td>⏰ 1-2 minutes to boot</td>
+                                <td>⚡ 1-5 seconds to start</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Isolation Level</strong></td>
+                                <td>🔒 Complete OS-level isolation</td>
+                                <td>🏠 Process-level isolation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>📉 10-15% overhead</td>
+                                <td>📈 Near-native performance (2-3% overhead)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Storage Size</strong></td>
+                                <td>💾 GBs (full OS image)</td>
+                                <td>💽 MBs (just app + dependencies)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Portability</strong></td>
+                                <td>🎯 Limited (hypervisor dependent)</td>
+                                <td>🌐 Highly portable (run anywhere Docker runs)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Density</strong></td>
+                                <td>📊 5-10 VMs per server</td>
+                                <td>📈 50-100+ containers per server</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <span class="benefit-icon">💻</span>
+                        <h4>When to Use Virtual Machines</h4>
+                        <p><strong>Best for:</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Running different operating systems</li>
+                            <li>Legacy applications that need full OS</li>
+                            <li>Maximum security isolation</li>
+                            <li>Running untrusted code</li>
+                        </ul>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🐳</span>
+                        <h4>When to Use Containers</h4>
+                        <p><strong>Best for:</strong></p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Microservices architecture</li>
+                            <li>CI/CD pipelines</li>
+                            <li>Cloud-native applications</li>
+                            <li>Development environments</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h4>💡 Real-World Scenario</h4>
+                    <p><strong>Company Server with 32GB RAM:</strong></p>
+                    <p><strong>With VMs:</strong> You might run 4-6 virtual machines, each using 4-6GB RAM</p>
+                    <p><strong>With Containers:</strong> You could run 50-100 containers, each using 50-200MB RAM</p>
+                    <p><strong>Result:</strong> Much better resource utilization and more applications per server!</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🚀 Key Benefits of Containerization</h3>
+            </div>
+            <div class="section-content">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🌐</span>
+                        <h4>1. Portability</h4>
+                        <p><strong>"Build once, run anywhere"</strong><br>
+                        Your container runs identically on Windows 10, Linux servers, AWS, Azure, or Google Cloud. No more environment-specific issues!</p>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">⚖️</span>
+                        <h4>2. Consistency</h4>
+                        <p><strong>Eliminate "works on my machine"</strong><br>
+                        Development, testing, staging, and production environments are identical. What works in dev will work in production.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🏠</span>
+                        <h4>3. Isolation</h4>
+                        <p><strong>No more dependency conflicts</strong><br>
+                        Each container has its own file system, network, and processes. Apps can't interfere with each other.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">⚡</span>
+                        <h4>4. Efficiency</h4>
+                        <p><strong>Lightweight and fast</strong><br>
+                        Containers share the host OS kernel. Start instantly, use minimal resources. 10x more efficient than VMs.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">📈</span>
+                        <h4>5. Scalability</h4>
+                        <p><strong>Scale rapidly and automatically</strong><br>
+                        Go from 1 to 1000 instances in seconds. Perfect for handling traffic spikes during sales or events.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <span class="benefit-icon">🔧</span>
+                        <h4>6. DevOps Integration</h4>
+                        <p><strong>Perfect for modern workflows</strong><br>
+                        Seamless CI/CD, automated testing, rolling deployments, and infrastructure as code.</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🎯 Real-World Example: E-commerce Website</h4>
+                    <p><strong>Traditional Setup:</strong> One server running web app, database, and cache together. Hard to scale, update, or maintain.</p>
+                    <p><strong>Container Setup:</strong> Separate containers for:</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>Web Frontend</strong> - React app in nginx container</li>
+                        <li><strong>API Backend</strong> - Node.js app in separate container</li>
+                        <li><strong>Database</strong> - PostgreSQL in its own container</li>
+                        <li><strong>Cache</strong> - Redis container for fast data access</li>
+                    </ul>
+                    <p><strong>Benefits:</strong> During Black Friday traffic, scale only the web frontend containers (10x) while keeping database unchanged. Update API without touching frontend. Perfect isolation and efficiency!</p>
+                </div>
+
+                <div class="example-box">
+                    <h4>💼 Business Impact</h4>
+                    <p><strong>Before Containers:</strong></p>
+                    <ul style="padding-left: 20px;">
+                        <li>Deployments took hours, often failed</li>
+                        <li>Scaling required buying new servers</li>
+                        <li>Environment issues caused 40% of bugs</li>
+                        <li>Dev/test/prod environments were different</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>After Containers:</strong></p>
+                    <ul style="padding-left: 20px;">
+                        <li>Deploy in minutes with zero downtime</li>
+                        <li>Auto-scale based on demand</li>
+                        <li>95% reduction in environment-related issues</li>
+                        <li>Identical environments everywhere</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="learning-objectives">
+            <h2>📚 Part 1 Summary</h2>
+            <p>Congratulations! You've mastered the foundation of container concepts. Here's what you now understand:</p>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Containers</strong> package applications with all dependencies for consistent, portable deployment</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Traditional deployment</strong> has conflicts and inconsistencies that containers solve</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Containers vs VMs:</strong> Lighter, faster, more portable, better resource utilization</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Key benefits:</strong> Portability, consistency, isolation, efficiency, scalability, DevOps integration</span>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 25px;">
+                <h4>🎯 Coming Up Next (11:15 AM - 12:15 PM)</h4>
+                <p><strong>Part 2: Docker Architecture Deep Dive</strong></p>
+                <p>We'll explore how Docker works under the hood, understand the client-server architecture, and get familiar with Docker Desktop on Windows 10.</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Day 1 - Part 4: Docker Hub & Registry Navigation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2496ed;
+            --docker-blue: #0db7ed;
+            --dark-blue: #1a365d;
+            --light-blue: #e6f7ff;
+            --success-green: #52c41a;
+            --warning-orange: #fa8c16;
+            --error-red: #ff4d4f;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-light: #e1e8ed;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+            --purple: #722ed1;
+            --green: #52c41a;
+            --orange: #fa8c16;
+            --hub-blue: #086dd7;
+            --official-green: #009639;
+            --verified-blue: #1d63ed;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--hub-blue), var(--docker-blue));
+            color: white;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #52c41a, #73d13d);
+            height: 100%;
+            width: 66.67%;
+            border-radius: 4px;
+        }
+
+        .learning-objectives {
+            background: var(--bg-white);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--success-green);
+        }
+
+        .learning-objectives h2 {
+            color: var(--success-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .objective-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--light-blue);
+            border-radius: 10px;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            background: var(--success-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .section {
+            background: var(--bg-white);
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--hub-blue), var(--docker-blue));
+            color: white;
+            padding: 25px 30px;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .hub-overview {
+            background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid var(--hub-blue);
+        }
+
+        .hub-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--border-light);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--hub-blue);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .image-types {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .image-type-card {
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .official-images {
+            background: linear-gradient(135deg, #f6ffed, #d9f7be);
+            border: 2px solid var(--official-green);
+        }
+
+        .community-images {
+            background: linear-gradient(135deg, #fff7e6, #ffd591);
+            border: 2px solid var(--warning-orange);
+        }
+
+        .image-type-card h4 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .official-images h4 {
+            color: var(--official-green);
+        }
+
+        .community-images h4 {
+            color: var(--warning-orange);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .badge.official {
+            background: var(--official-green);
+            color: white;
+        }
+
+        .badge.verified {
+            background: var(--verified-blue);
+            color: white;
+        }
+
+        .badge.sponsored {
+            background: var(--warning-orange);
+            color: white;
+        }
+
+        .search-demo {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .search-bar {
+            background: var(--bg-white);
+            border: 2px solid var(--hub-blue);
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            width: 100%;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .search-results {
+            display: grid;
+            gap: 15px;
+        }
+
+        .search-result {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .result-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--hub-blue);
+        }
+
+        .result-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        .authentication-section {
+            background: linear-gradient(135deg, #fff1f0, #ffccc7);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid var(--error-red);
+        }
+
+        .auth-steps {
+            counter-reset: auth-counter;
+        }
+
+        .auth-step {
+            background: var(--bg-white);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid var(--hub-blue);
+            counter-increment: auth-counter;
+            position: relative;
+        }
+
+        .auth-step::before {
+            content: counter(auth-counter);
+            position: absolute;
+            left: -15px;
+            top: 15px;
+            background: var(--hub-blue);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .auth-step h5 {
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+            margin-left: 20px;
+        }
+
+        .auth-step-content {
+            margin-left: 20px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        .powershell-block {
+            background: #012456;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--hub-blue);
+        }
+
+        .best-practices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .practice-card {
+            background: linear-gradient(135deg, var(--bg-white), var(--light-blue));
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+        }
+
+        .practice-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .practice-card h4 {
+            color: var(--hub-blue);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff7e6, #ffd591);
+            border: 2px solid var(--warning-orange);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #f6ffed, #d9f7be);
+            border: 2px solid var(--success-green);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .success-box h4 {
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .example-box {
+            background: #f0f8ff;
+            border-left: 4px solid var(--hub-blue);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .security-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin: 20px 0;
+        }
+
+        .security-table th,
+        .security-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .security-table th {
+            background: var(--error-red);
+            color: white;
+            font-weight: 600;
+        }
+
+        .security-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .tag-examples {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .tag-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .tag-example {
+            background: var(--bg-white);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--border-light);
+            text-align: center;
+        }
+
+        .tag-name {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: bold;
+            color: var(--hub-blue);
+            margin-bottom: 5px;
+        }
+
+        .private-registry {
+            background: linear-gradient(135deg, #f9f0ff, #efdbff);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid var(--purple);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .image-types {
+                grid-template-columns: 1fr;
+            }
+
+            .hub-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .best-practices {
+                grid-template-columns: 1fr;
+            }
+
+            .tag-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🐳 Docker Deep Dive - Day 1</h1>
+            <div class="subtitle">Part 4: Docker Hub & Registry Navigation</div>
+            <div class="subtitle">Duration: 2:30 PM - 3:30 PM | Exploring the Docker Ecosystem</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <small>Part 4 of 6 - Registry & Image Management</small>
+        </header>
+
+        <section class="learning-objectives">
+            <h2>🎯 Learning Objectives</h2>
+            <p>By the end of this session, you will be able to:</p>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Navigate Docker Hub effectively and search for images</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Distinguish between official, verified, and community images</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Evaluate image quality, security, and maintenance status</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span>Authenticate with Docker Hub and manage repositories</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🌐 What is Docker Hub?</h3>
+            </div>
+            <div class="section-content">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Docker Hub is the world's largest repository of container images - a cloud-based registry service where developers store, share, and collaborate on containerized applications.</p>
+
+                <div class="hub-overview">
+                    <h4 style="text-align: center; color: var(--dark-blue); margin-bottom: 20px;">🏆 Docker Hub by the Numbers</h4>
+                    <div class="hub-stats">
+                        <div class="stat-card">
+                            <span class="stat-number">100M+</span>
+                            <span class="stat-label">Container Downloads per month</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">8M+</span>
+                            <span class="stat-label">Container Images</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">100K+</span>
+                            <span class="stat-label">Publishers</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">300+</span>
+                            <span class="stat-label">Official Images</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="best-practices">
+                    <div class="practice-card">
+                        <span class="practice-icon">🔍</span>
+                        <h4>Discovery Platform</h4>
+                        <p>Find pre-built images for databases, web servers, programming languages, and development tools. No need to build from scratch!</p>
+                    </div>
+                    <div class="practice-card">
+                        <span class="practice-icon">🤝</span>
+                        <h4>Collaboration Hub</h4>
+                        <p>Share images with teams, contribute to open source projects, and access both public and private repositories.</p>
+                    </div>
+                    <div class="practice-card">
+                        <span class="practice-icon">🤖</span>
+                        <h4>Automation Integration</h4>
+                        <p>Connect with GitHub/Bitbucket for automated builds. Push code changes and Docker Hub builds new images automatically.</p>
+                    </div>
+                    <div class="practice-card">
+                        <span class="practice-icon">🔒</span>
+                        <h4>Security Scanning</h4>
+                        <p>Built-in vulnerability scanning for images. Get security reports and recommendations for safer deployments.</p>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h4>🎯 Real-World Analogy</h4>
+                    <p><strong>Think of Docker Hub like GitHub, but for containers:</strong></p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>GitHub stores source code</strong> → Docker Hub stores container images</li>
+                        <li><strong>GitHub has repositories</strong> → Docker Hub has image repositories</li>
+                        <li><strong>GitHub has public/private repos</strong> → Docker Hub has public/private images</li>
+                        <li><strong>GitHub has stars and forks</strong> → Docker Hub has stars and pulls</li>
+                        <li><strong>GitHub integrates with CI/CD</strong> → Docker Hub builds and deploys containers</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🏷️ Image Types & Quality Indicators</h3>
+            </div>
+            <div class="section-content">
+                <div class="image-types">
+                    <div class="image-type-card official-images">
+                        <h4>✅ Official Images</h4>
+                        <div style="margin: 15px 0;">
+                            <span class="badge official">🏆 OFFICIAL</span>
+                        </div>
+                        <p><strong>What they are:</strong></p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Maintained by Docker and upstream maintainers</li>
+                            <li>Follow Docker best practices and security standards</li>
+                            <li>Regularly updated and security-scanned</li>
+                            <li>Well-documented with clear usage instructions</li>
+                        </ul>
+                        
+                        <p style="margin-top: 15px;"><strong>Examples:</strong></p>
+                        <div style="font-family: monospace; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 5px; margin-top: 10px;">
+                            nginx, mysql, postgres, python, node, ubuntu, redis, mongo
+                        </div>
+                        
+                        <div class="success-box" style="margin-top: 15px;">
+                            <h4>✅ Best Choice</h4>
+                            <p>Always prefer official images when available. They're the safest and most reliable option.</p>
+                        </div>
+                    </div>
+
+                    <div class="image-type-card community-images">
+                        <h4>👥 Community Images</h4>
+                        <div style="margin: 15px 0;">
+                            <span class="badge verified">✓ VERIFIED</span>
+                            <span class="badge sponsored">💎 SPONSORED</span>
+                        </div>
+                        <p><strong>What they are:</strong></p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Created by individuals, organizations, or companies</li>
+                            <li>Quality varies significantly</li>
+                            <li>May include specialized configurations</li>
+                            <li>Some are verified or sponsored for quality assurance</li>
+                        </ul>
+                        
+                        <p style="margin-top: 15px;"><strong>Examples:</strong></p>
+                        <div style="font-family: monospace; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 5px; margin-top: 10px;">
+                            bitnami/nginx, jenkins/jenkins, grafana/grafana, prom/prometheus
+                        </div>
+                        
+                        <div class="warning-box" style="margin-top: 15px;">
+                            <h4>⚠️ Evaluate Carefully</h4>
+                            <p>Check downloads, stars, last updated date, and documentation quality before using.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-table">
+                    <h4 style="margin-bottom: 15px; padding: 0 20px; padding-top: 20px;">🔍 How to Evaluate Image Quality</h4>
+                    <table class="security-table">
+                        <thead>
+                            <tr>
+                                <th>Quality Factor</th>
+                                <th>What to Look For</th>
+                                <th>Red Flags</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Downloads</strong></td>
+                                <td>1M+ downloads indicate popularity and trust</td>
+                                <td>Less than 1K downloads (unless very new)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stars</strong></td>
+                                <td>100+ stars show community approval</td>
+                                <td>No stars or very few for established images</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Last Updated</strong></td>
+                                <td>Updated within last 3 months</td>
+                                <td>No updates for 6+ months</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Documentation</strong></td>
+                                <td>Clear README with usage examples</td>
+                                <td>Minimal or no documentation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Source Code</strong></td>
+                                <td>Linked to GitHub repository</td>
+                                <td>No source code repository link</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Size</strong></td>
+                                <td>Reasonable size for functionality</td>
+                                <td>Unusually large images (500MB+ for simple apps)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🔍 Searching and Finding Images</h3>
+            </div>
+            <div class="section-content">
+                <div class="search-demo">
+                    <h4 style="text-align: center; margin-bottom: 20px;">🎯 Docker Hub Search Interface</h4>
+                    <input type="text" class="search-bar" placeholder="Search for images (e.g., nginx, python, mysql)" readonly value="nginx">
+                    
+                    <div class="search-results">
+                        <div class="search-result">
+                            <div class="result-header">
+                                <div class="result-name">nginx</div>
+                                <span class="badge official">🏆 OFFICIAL</span>
+                            </div>
+                            <p>Official build of Nginx web server</p>
+                            <div class="result-stats">
+                                <span>📥 1B+ Downloads</span>
+                                <span>⭐ 19K Stars</span>
+                                <span>🔄 Updated 2 weeks ago</span>
+                                <span>💾 142MB</span>
+                            </div>
+                        </div>
+
+                        <div class="search-result">
+                            <div class="result-header">
+                                <div class="result-name">bitnami/nginx</div>
+                                <span class="badge verified">✓ VERIFIED</span>
+                            </div>
+                            <p>Bitnami's production-ready Nginx container</p>
+                            <div class="result-stats">
+                                <span>📥 100M+ Downloads</span>
+                                <span>⭐ 23 Stars</span>
+                                <span>🔄 Updated 1 week ago</span>
+                                <span>💾 89MB</span>
+                            </div>
+                        </div>
+
+                        <div class="search-result">
+                            <div class="result-header">
+                                <div class="result-name">nginx/nginx-ingress</div>
+                                <span class="badge sponsored">💎 SPONSORED</span>
+                            </div>
+                            <p>NGINX Ingress Controller for Kubernetes</p>
+                            <div class="result-stats">
+                                <span>📥 50M+ Downloads</span>
+                                <span>⭐ 156 Stars</span>
+                                <span>🔄 Updated 3 days ago</span>
+                                <span>💾 124MB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>🎯 Search Strategies</h4>
+                <div class="best-practices">
+                    <div class="practice-card">
+                        <span class="practice-icon">🎯</span>
+                        <h4>Start Broad</h4>
+                        <p>Begin with general terms like "python", "database", or "web server" to see all available options.</p>
+                    </div>
+                    <div class="practice-card">
+                        <span class="practice-icon">🔍</span>
+                        <h4>Use Filters</h4>
+                        <p>Filter by Official Images, Automated Builds, or sort by Stars/Downloads to find quality options.</p>
+                    </div>
+                    <div class="practice-card">
+                        <span class="practice-icon">📊</span>
+                        <h4>Check Metrics</h4>
+                        <p>Look at download counts, star ratings, and last updated dates to gauge image popularity and maintenance.</p>
+                    </div>
+                    <div class="practice-card">
+                        <span class="practice-icon">📖</span>
+                        <h4>Read Documentation</h4>
+                        <p>Always review the image's README for usage instructions, environment variables, and security notes.</p>
+                    </div>
+                </div>
+
+                <div class="powershell-block">
+# Search from command line
+PS C:\> docker search nginx
+
+# Search with filters (stars threshold)
+PS C:\> docker search --filter stars=100 nginx
+
+# Search official images only
+PS C:\> docker search --filter is-official=true mysql
+
+# Limit results
+PS C:\> docker search --limit 5 python
+                </div>
+
+                <div class="example-box">
+                    <h4>💡 Pro Search Tips</h4>
+                    <ul style="padding-left: 20px;">
+                        <li><strong>Use specific versions:</strong> Search "python 3.9" instead of just "python"</li>
+                        <li><strong>Look for alternatives:</strong> Compare "mysql" vs "postgres" vs "mariadb"</li>
+                        <li><strong>Check vendor images:</strong> Sometimes vendors like "bitnami" or "microsoft" have optimized versions</li>
+                        <li><strong>Consider size:</strong> Look for "alpine" variants for smaller, more secure images</li>
+                        <li><strong>Read reviews:</strong> Check the "Reviews" tab for user feedback and common issues</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🏷️ Understanding Image Tags</h3>
+            </div>
+            <div class="section-content">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Image tags are used to specify different versions or variants of the same image. Understanding tags is crucial for reliable deployments.</p>
+
+                <div class="tag-examples">
+                    <h4 style="text-align: center; margin-bottom: 20px;">📋 Common Tag Patterns</h4>
+                    <div class="tag-grid">
+                        <div class="tag-example">
+                            <div class="tag-name">nginx:latest</div>
+                            <p>Most recent stable version</p>
+                            <small style="color: var(--warning-orange);">⚠️ Avoid in production</small>
+                        </div>
+                        <div class="tag-example">
+                            <div class="tag-name">nginx:1.21</div>
+                            <p>Specific major.minor version</p>
+                            <small style="color: var(--success-green);">✅ Good for production</small>
+                        </div>
+                        <div class="tag-example">
+                            <div class="tag-name">nginx:1.21.6</div>
+                            <p>Exact version (patch level)</p>
+                            <small style="color: var(--success-green);">✅ Best for production</small>
+                        </div>
+                        <div class="tag-example">
+                            <div class="tag-name">nginx:alpine</div>
+                            <p>Alpine Linux based (smaller)</p>
+                            <small style="color: var(--success-green);">✅ Lightweight & secure</small>
+                        </div>
+                        <div class="tag-example">
+                            <div class="tag-name">python:3.9-slim</div>
+                            <p>Minimal installation</p>
+                            <small style="color: var(--success-green);">✅ Reduced attack surface</small>
+                        </div>
+                        <div class="tag-example">
+                            <div class="tag-name">ubuntu:20.04</div>
+                            <p>Specific OS version</p>
+                            <small style="color: var(--success-green);">✅ Stable and predictable</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-types">
+                    <div class="image-type-card official-images">
+                        <h4>✅ Recommended Tag Practices</h4>
+                        <ul style="margin-top: 15px;">
+                            <li><strong>Development:</strong> Use specific versions like <code>node:16.14</code></li>
+                            <li><strong>Production:</strong> Pin exact versions like <code>node:16.14.2-alpine</code></li>
+                            <li><strong>Security:</strong> Prefer <code>alpine</code> or <code>slim</code> variants</li>
+                            <li><strong>Updates:</strong> Regularly update to newer stable versions</li>
+                            <li><strong>Documentation:</strong> Document which tags you use and why</li>
+                        </ul>
+                    </div>
+
+                    <div class="image-type-card community-images">
+                        <h4>❌ Tags to Avoid</h4>
+                        <ul style="margin-top: 15px;">
+                            <li><strong>latest:</strong> Unpredictable updates break applications</li>
+                            <li><strong>edge/nightly:</strong> Unstable development versions</li>
+                            <li><strong>No tag:</strong> Defaults to <code>latest</code> (same problem)</li>
+                            <li><strong>Old versions:</strong> May have security vulnerabilities</li>
+                            <li><strong>Unknown tags:</strong> Custom tags without clear meaning</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="powershell-block">
+# View available tags for an image
+PS C:\> docker search nginx --limit 1
+PS C:\> # Visit Docker Hub page to see all available tags
+
+# Pull specific versions
+PS C:\> docker pull nginx:1.21-alpine     # Recommended
+PS C:\> docker pull nginx:latest          # Not recommended
+PS C:\> docker pull nginx                 # Same as latest (avoid)
+
+# List local images with tags
+PS C:\> docker images
+
+# Remove image with specific tag
+PS C:\> docker rmi nginx:latest
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ The "latest" Tag Problem</h4>
+                    <p><strong>Why avoid "latest" in production?</strong></p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>Unpredictable updates:</strong> "latest" changes without notice</li>
+                        <li><strong>Breaking changes:</strong> New versions may not be backward compatible</li>
+                        <li><strong>Debugging nightmare:</strong> Hard to know which version caused issues</li>
+                        <li><strong>Inconsistent environments:</strong> Dev and prod might run different versions</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🔐 Authentication & Account Management</h3>
+            </div>
+            <div class="section-content">
+                <div class="authentication-section">
+                    <h4 style="color: var(--dark-blue); margin-bottom: 20px;">🎯 Why Create a Docker Hub Account?</h4>
+                    <div class="best-practices">
+                        <div class="practice-card">
+                            <span class="practice-icon">📈</span>
+                            <h4>Higher Pull Limits</h4>
+                            <p><strong>Anonymous:</strong> 100 pulls/6 hours<br><strong>Free Account:</strong> 200 pulls/6 hours<br><strong>Pro Account:</strong> Unlimited pulls</p>
+                        </div>
+                        <div class="practice-card">
+                            <span class="practice-icon">🔒</span>
+                            <h4>Private Repositories</h4>
+                            <p>Store proprietary images securely. Free accounts get 1 private repo, paid plans get unlimited.</p>
+                        </div>
+                        <div class="practice-card">
+                            <span class="practice-icon">🤖</span>
+                            <h4>Automated Builds</h4>
+                            <p>Connect GitHub/Bitbucket to automatically build images when you push code changes.</p>
+                        </div>
+                        <div class="practice-card">
+                            <span class="practice-icon">👥</span>
+                            <h4>Team Collaboration</h4>
+                            <p>Share repositories with team members, manage permissions, and collaborate on projects.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-steps">
+                    <div class="auth-step">
+                        <h5>Create Docker Hub Account</h5>
+                        <div class="auth-step-content">
+                            <p>Visit <strong>hub.docker.com</strong> and sign up for a free account:</p>
+                            <ul style="margin-top: 10px;">
+                                <li>Choose a unique username (will be part of image names)</li>
+                                <li>Use a valid email address for verification</li>
+                                <li>Create a strong password</li>
+                                <li>Verify your email address</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="auth-step">
+                        <h5>Login from Command Line</h5>
+                        <div class="auth-step-content">
+                            <div class="powershell-block">
+# Login to Docker Hub
+PS C:\> docker login
+
+# You'll be prompted for credentials:
+Username: your-username
+Password: [type your password]
+
+# Successful login message:
+Login Succeeded
+                            </div>
+                            <div class="success-box">
+                                <h4>✅ Authentication Stored</h4>
+                                <p>Your credentials are securely stored in Windows Credential Manager.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="auth-step">
+                        <h5>Test with Private Repository</h5>
+                        <div class="auth-step-content">
+                            <div class="powershell-block">
+# Create a simple test image
+PS C:\> docker run -d --name test-container nginx
+PS C:\> docker commit test-container your-username/my-test-image
+
+# Push to your private repository
+PS C:\> docker push your-username/my-test-image
+
+# Verify on Docker Hub
+# Go to hub.docker.com → Your Account → Repositories
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="auth-step">
+                        <h5>Manage Access Tokens</h5>
+                        <div class="auth-step-content">
+                            <p>For enhanced security, use Personal Access Tokens instead of passwords:</p>
+                            <ul style="margin-top: 10px;">
+                                <li>Go to <strong>Account Settings → Security → New Access Token</strong></li>
+                                <li>Choose permissions: Read, Write, Delete</li>
+                                <li>Copy the token and store it securely</li>
+                                <li>Use token as password when logging in</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="auth-step">
+                        <h5>Configure Docker Desktop</h5>
+                        <div class="auth-step-content">
+                            <p>Sign in through Docker Desktop for integrated experience:</p>
+                            <ul style="margin-top: 10px;">
+                                <li>Open Docker Desktop dashboard</li>
+                                <li>Click "Sign in" in top-right corner</li>
+                                <li>Enter your Docker Hub credentials</li>
+                                <li>Enjoy seamless integration with GUI</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>🔒 Security Best Practices</h4>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>Use Access Tokens:</strong> Never store passwords in scripts or CI/CD</li>
+                        <li><strong>Limited Scope:</strong> Create tokens with minimal required permissions</li>
+                        <li><strong>Regular Rotation:</strong> Rotate access tokens every 3-6 months</li>
+                        <li><strong>Logout:</strong> Use <code>docker logout</code> on shared machines</li>
+                        <li><strong>2FA:</strong> Enable two-factor authentication on your account</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>🏢 Private Registries & Alternatives</h3>
+            </div>
+            <div class="section-content">
+                <div class="private-registry">
+                    <h4 style="text-align: center; color: var(--dark-blue); margin-bottom: 20px;">🔒 When to Use Private Registries</h4>
+                    <div class="best-practices">
+                        <div class="practice-card">
+                            <span class="practice-icon">🏢</span>
+                            <h4>Corporate Security</h4>
+                            <p>Company policies require keeping proprietary code and images within corporate networks.</p>
+                        </div>
+                        <div class="practice-card">
+                            <span class="practice-icon">⚡</span>
+                            <h4>Performance</h4>
+                            <p>Local registries provide faster image pulls and reduced bandwidth costs for large teams.</p>
+                        </div>
+                        <div class="practice-card">
+                            <span class="practice-icon">🔐</span>
+                            <h4>Compliance</h4>
+                            <p>Regulatory requirements (GDPR, HIPAA) mandate data sovereignty and access controls.</p>
+                        </div>
+                        <div class="practice-card">
+                            <span class="practice-icon">💰</span>
+                            <h4>Cost Control</h4>
+                            <p>Large organizations save money with self-hosted registries vs. cloud registry fees.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>🌐 Popular Registry Alternatives</h4>
+                <div class="security-table">
+                    <table class="security-table">
+                        <thead>
+                            <tr>
+                                <th>Registry</th>
+                                <th>Provider</th>
+                                <th>Best For</th>
+                                <th>Key Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Docker Hub</strong></td>
+                                <td>Docker Inc.</td>
+                                <td>Public images, small teams</td>
+                                <td>Largest repository, free tier, easy to use</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Amazon ECR</strong></td>
+                                <td>AWS</td>
+                                <td>AWS environments</td>
+                                <td>IAM integration, high availability, scanning</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure Container Registry</strong></td>
+                                <td>Microsoft</td>
+                                <td>Azure environments</td>
+                                <td>Azure AD integration, geo-replication</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Google Container Registry</strong></td>
+                                <td>Google Cloud</td>
+                                <td>GCP environments</td>
+                                <td>GCP integration, automatic scanning</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GitLab Container Registry</strong></td>
+                                <td>GitLab</td>
+                                <td>GitLab CI/CD workflows</td>
+                                <td>Built-in CI/CD, project integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>JFrog Artifactory</strong></td>
+                                <td>JFrog</td>
+                                <td>Enterprise environments</td>
+                                <td>Universal repository, advanced security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Harbor</strong></td>
+                                <td>CNCF (Open Source)</td>
+                                <td>Self-hosted enterprise</td>
+                                <td>Role-based access, vulnerability scanning</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="example-box">
+                    <h4>🔧 Working with Different Registries</h4>
+                    <div class="powershell-block">
+# Docker Hub (default)
+PS C:\> docker pull nginx
+PS C:\> docker pull username/my-image
+
+# Amazon ECR
+PS C:\> docker pull 123456789012.dkr.ecr.us-west-2.amazonaws.com/my-repo:latest
+
+# Azure Container Registry
+PS C:\> docker pull myregistry.azurecr.io/my-image:v1.0
+
+# Google Container Registry
+PS C:\> docker pull gcr.io/my-project/my-image:latest
+
+# Private registry
+PS C:\> docker pull registry.company.com:5000/internal/app:latest
+
+# Login to specific registry
+PS C:\> docker login registry.company.com:5000
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <h4>💡 Registry Selection Tips</h4>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>Start with Docker Hub</strong> for learning and public projects</li>
+                        <li><strong>Use cloud registries</strong> if you're already on AWS/Azure/GCP</li>
+                        <li><strong>Consider Harbor</strong> for self-hosted enterprise needs</li>
+                        <li><strong>Evaluate costs</strong> based on storage, bandwidth, and team size</li>
+                        <li><strong>Check integration</strong> with your existing CI/CD pipelines</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>📋 Registry Best Practices</h3>
+            </div>
+            <div class="section-content">
+                <div class="best-practices">
+                    <div class="practice-card">
+                        <span class="practice-icon">🔍</span>
+                        <h4>1. Image Evaluation</h4>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Prefer official images when available</li>
+                            <li>Check download counts and star ratings</li>
+                            <li>Review last updated date (< 3 months)</li>
+                            <li>Read documentation and user reviews</li>
+                            <li>Verify source code repository link</li>
+                        </ul>
+                    </div>
+
+                    <div class="practice-card">
+                        <span class="practice-icon">🏷️</span>
+                        <h4>2. Tag Management</h4>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Never use "latest" in production</li>
+                            <li>Pin exact versions for stability</li>
+                            <li>Prefer alpine/slim variants for security</li>
+                            <li>Document tag choices in your projects</li>
+                            <li>Regularly update to newer stable versions</li>
+                        </ul>
+                    </div>
+
+                    <div class="practice-card">
+                        <span class="practice-icon">🔒</span>
+                        <h4>3. Security Practices</h4>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Enable vulnerability scanning</li>
+                            <li>Use access tokens instead of passwords</li>
+                            <li>Implement least-privilege access</li>
+                            <li>Regularly audit repository permissions</li>
+                            <li>Keep base images updated</li>
+                        </ul>
+                    </div>
+
+                    <div class="practice-card">
+                        <span class="practice-icon">📊</span>
+                        <h4>4. Repository Organization</h4>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Use consistent naming conventions</li>
+                            <li>Group related images logically</li>
+                            <li>Maintain clear documentation</li>
+                            <li>Tag releases consistently</li>
+                            <li>Clean up old, unused images</li>
+                        </ul>
+                    </div>
+
+                    <div class="practice-card">
+                        <span class="practice-icon">🤖</span>
+                        <h4>5. Automation Integration</h4>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Set up automated builds from Git</li>
+                            <li>Implement CI/CD pipeline integration</li>
+                            <li>Use webhooks for deployment triggers</li>
+                            <li>Configure build notifications</li>
+                            <li>Test images before deployment</li>
+                        </ul>
+                    </div>
+
+                    <div class="practice-card">
+                        <span class="practice-icon">💰</span>
+                        <h4>6. Cost Optimization</h4>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Monitor pull limits and usage</li>
+                            <li>Clean up unused repositories</li>
+                            <li>Optimize image sizes</li>
+                            <li>Use registry cleanup policies</li>
+                            <li>Consider private registry for high volume</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Common Pitfalls to Avoid</h4>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>Using "latest" tags:</strong> Leads to unpredictable deployments</li>
+                        <li><strong>Ignoring image size:</strong> Large images slow down deployments</li>
+                        <li><strong>Not reading documentation:</strong> Missing important security or usage notes</li>
+                        <li><strong>Trusting any image:</strong> Some community images may be malicious</li>
+                        <li><strong>Hardcoding credentials:</strong> Never put passwords in Dockerfiles</li>
+                        <li><strong>Not monitoring usage:</strong> Can lead to unexpected rate limiting</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <h4>🎯 Practical Exercise: Image Research</h4>
+                    <p><strong>Task:</strong> Research and compare these images for a Python web application:</p>
+                    <ol style="margin: 10px 0; padding-left: 20px;">
+                        <li>Find the official Python image on Docker Hub</li>
+                        <li>Compare <code>python:3.9</code> vs <code>python:3.9-slim</code> vs <code>python:3.9-alpine</code></li>
+                        <li>Check image sizes, last updated dates, and documentation</li>
+                        <li>Identify which would be best for production use</li>
+                        <li>Document your decision rationale</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section class="learning-objectives">
+            <h2>📚 Part 4 Summary</h2>
+            <p>Excellent! You're now equipped to navigate Docker Hub like a pro. Here's what you've mastered:</p>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Docker Hub Navigation:</strong> Search, filter, and evaluate images effectively</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Image Quality Assessment:</strong> Distinguish official, verified, and community images</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Tag Understanding:</strong> Choose appropriate versions and avoid "latest" pitfalls</span>
+                </div>
+                <div class="objective-item">
+                    <span class="checkmark">✓</span>
+                    <span><strong>Authentication & Security:</strong> Manage accounts, tokens, and registry access</span>
+                </div>
+            </div>
+            
+            <div class="success-box" style="margin-top: 25px;">
+                <h4>🎯 Coming Up Next (3:30 PM - 5:00 PM)</h4>
+                <p><strong>Part 5: Essential Docker Commands</strong></p>
+                <p>Master the command line! Learn Docker CLI syntax, image management, container operations, and Windows-specific considerations with hands-on practice.</p>
+            </div>
+
+            <div class="example-box" style="margin-top: 20px;">
+                <h4>📋 Quick Reference Commands</h4>
+                <div class="powershell-block">
+# Essential registry commands you've learned:
+docker search nginx                    # Search for images
+docker pull nginx:1.21-alpine         # Pull specific version
+docker login                          # Authenticate with Docker Hub
+docker push username/my-image:v1.0     # Push to repository
+docker logout                         # Sign out securely
+docker images                         # List local images
+docker rmi image:tag                   # Remove local image
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
