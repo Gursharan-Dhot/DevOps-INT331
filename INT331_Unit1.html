@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Training Hour 1: Introduction to DevOps Concepts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+        
+        .time-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .time-box {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(66, 153, 225, 0.3);
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section h2 {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4299e1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section h3 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin: 25px 0 15px 0;
+            padding-left: 15px;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .concept-card {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4299e1, #48bb78);
+        }
+        
+        .concept-card h4 {
+            font-size: 1.3rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .concept-card p {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+        
+        .lifecycle-diagram {
+            background: linear-gradient(135deg, #f0f9ff, #e0e7ff);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 2px solid #3b82f6;
+        }
+        
+        .lifecycle-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .lifecycle-step {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+            position: relative;
+        }
+        
+        .lifecycle-step::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: #3b82f6;
+            font-weight: bold;
+        }
+        
+        .lifecycle-step:last-child::after {
+            display: none;
+        }
+        
+        .step-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+        
+        .step-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        
+        .step-desc {
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .benefit-item {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .tools-section {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 2px solid #f59e0b;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tool-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f59e0b;
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tool-category {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .tool-examples {
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        
+        .practical-example {
+            background: linear-gradient(135deg, #fdf4ff, #fae8ff);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #a855f7;
+        }
+        
+        .practical-example h4 {
+            color: #7c3aed;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .command-box {
+            background: #1a202c;
+            color: #68d391;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            margin: 15px 0;
+            border-left: 4px solid #48bb78;
+            overflow-x: auto;
+        }
+        
+        .command-box .prompt {
+            color: #4fd1c7;
+        }
+        
+        .command-box .command {
+            color: #f7fafc;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #f56565;
+        }
+        
+        .highlight strong {
+            color: #c53030;
+        }
+        
+        .instructor-notes {
+            background: linear-gradient(135deg, #e6fffa, #b2f5ea);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #4fd1c7;
+        }
+        
+        .instructor-notes h4 {
+            color: #234e52;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .instructor-notes ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .instructor-notes li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #285e61;
+        }
+        
+        .instructor-notes li::before {
+            content: '📝';
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+        
+        .comparison-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin: 25px 0;
+        }
+        
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        
+        .comparison-table tr:hover {
+            background: #edf2f7;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .time-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .lifecycle-steps {
+                flex-direction: column;
+            }
+            
+            .lifecycle-step::after {
+                display: none;
+            }
+            
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 DevOps Training Session</h1>
+            <p class="subtitle">Hour 1: Introduction to DevOps Concepts</p>
+            <div class="time-info">
+                <div class="time-box">⏰ Duration: 1 Hour</div>
+                <div class="time-box">📅 Session: 10:00 - 11:00 AM</div>
+                <div class="time-box">🎯 Target: LPU Faculty</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Learning Objectives</h2>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Understanding DevOps</h4>
+                    <p>Define DevOps and understand its core principles and philosophy</p>
+                </div>
+                <div class="concept-card">
+                    <h4>DevOps Lifecycle</h4>
+                    <p>Comprehend the continuous integration and deployment pipeline</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Benefits & Importance</h4>
+                    <p>Analyze the business and technical advantages of DevOps adoption</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Tools & Challenges</h4>
+                    <p>Identify common DevOps tools and understand implementation challenges</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 What is DevOps?</h2>
+            
+            <div class="practical-example">
+                <h4>Definition & Core Concept</h4>
+                <p><strong>DevOps</strong> is a set of practices that combines software development (Dev) and IT operations (Ops). It aims to shorten the systems development life cycle and provide continuous delivery with high software quality.</p>
+            </div>
+
+            <h3>Key Principles of DevOps</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>🤝 Collaboration</h4>
+                    <p>Breaking down silos between development and operations teams to foster better communication and shared responsibility.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🔄 Automation</h4>
+                    <p>Automating repetitive tasks in the software delivery pipeline to reduce human error and increase efficiency.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>📊 Monitoring</h4>
+                    <p>Continuous monitoring of applications and infrastructure to ensure optimal performance and quick issue resolution.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🚀 Continuous Improvement</h4>
+                    <p>Implementing feedback loops to continuously improve processes, tools, and team collaboration.</p>
+                </div>
+            </div>
+
+            <div class="instructor-notes">
+                <h4>👨‍🏫 Instructor Notes</h4>
+                <ul>
+                    <li>Start with a real-world analogy: Compare DevOps to a well-orchestrated restaurant kitchen</li>
+                    <li>Ask students about their experience with traditional software development cycles</li>
+                    <li>Emphasize that DevOps is not just tools, but a cultural shift</li>
+                    <li>Use the phrase "You build it, you run it" to explain ownership mentality</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 DevOps Lifecycle</h2>
+            
+            <div class="lifecycle-diagram">
+                <h3 style="text-align: center; margin-bottom: 30px; color: #1e40af;">The Infinite DevOps Loop</h3>
+                <div class="lifecycle-steps">
+                    <div class="lifecycle-step">
+                        <div class="step-circle">📋</div>
+                        <div class="step-title">Plan</div>
+                        <div class="step-desc">Requirements gathering, sprint planning, and project management</div>
+                    </div>
+                    <div class="lifecycle-step">
+                        <div class="step-circle">💻</div>
+                        <div class="step-title">Code</div>
+                        <div class="step-desc">Writing, reviewing, and version controlling source code</div>
+                    </div>
+                    <div class="lifecycle-step">
+                        <div class="step-circle">🔨</div>
+                        <div class="step-title">Build</div>
+                        <div class="step-desc">Compiling code, dependency management, and artifact creation</div>
+                    </div>
+                    <div class="lifecycle-step">
+                        <div class="step-circle">🧪</div>
+                        <div class="step-title">Test</div>
+                        <div class="step-desc">Automated testing, quality assurance, and security scanning</div>
+                    </div>
+                    <div class="lifecycle-step">
+                        <div class="step-circle">📦</div>
+                        <div class="step-title">Release</div>
+                        <div class="step-desc">Staging deployment, release management, and approval workflows</div>
+                    </div>
+                    <div class="lifecycle-step">
+                        <div class="step-circle">🚀</div>
+                        <div class="step-title">Deploy</div>
+                        <div class="step-desc">Production deployment, configuration management, and rollback strategies</div>
+                    </div>
+                    <div class="lifecycle-step">
+                        <div class="step-circle">⚙️</div>
+                        <div class="step-title">Operate</div>
+                        <div class="step-desc">Infrastructure management, scaling, and maintenance</div>
+                    </div>
+                    <div class="lifecycle-step">
+                        <div class="step-circle">📊</div>
+                        <div class="step-title">Monitor</div>
+                        <div class="step-desc">Performance monitoring, log analysis, and user feedback</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="practical-example">
+                <h4>🎯 Real-World Example: E-commerce Application</h4>
+                <p>Let's trace how an e-commerce feature (like "Add to Cart") goes through the DevOps lifecycle:</p>
+                <div class="command-box">
+                    <div class="prompt">Plan:</div>
+                    <div class="command">• Business requirement: "Users should be able to add items to cart"</div>
+                    <div class="command">• Technical specs: Database schema, API endpoints, UI components</div>
+                    <div class="command">• Sprint planning: 2-week sprint, 3 developers assigned</div>
+                    <br>
+                    <div class="prompt">Code:</div>
+                    <div class="command">• Frontend: React component for cart functionality</div>
+                    <div class="command">• Backend: Node.js API endpoints for cart operations</div>
+                    <div class="command">• Database: MongoDB schema for cart items</div>
+                    <br>
+                    <div class="prompt">Build:</div>
+                    <div class="command">• Webpack builds frontend assets</div>
+                    <div class="command">• Docker containers created for microservices</div>
+                    <div class="command">• Dependencies installed and bundled</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💡 Importance and Benefits of DevOps</h2>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-title">Faster Delivery</div>
+                    <div>Reduce deployment time from weeks to hours</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🛡️</div>
+                    <div class="benefit-title">Higher Quality</div>
+                    <div>Automated testing reduces bugs and improves reliability</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">📈</div>
+                    <div class="benefit-title">Better Collaboration</div>
+                    <div>Enhanced communication between teams</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">💰</div>
+                    <div class="benefit-title">Cost Reduction</div>
+                    <div>Automation reduces manual effort and operational costs</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🔄</div>
+                    <div class="benefit-title">Continuous Feedback</div>
+                    <div>Faster identification and resolution of issues</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">📊</div>
+                    <div class="benefit-title">Better Monitoring</div>
+                    <div>Real-time visibility into application performance</div>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Traditional Approach</th>
+                            <th>DevOps Approach</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Deployment Frequency</strong></td>
+                            <td>Monthly or quarterly releases</td>
+                            <td>Multiple deployments per day</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lead Time</strong></td>
+                            <td>Weeks to months</td>
+                            <td>Hours to days</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Recovery Time</strong></td>
+                            <td>Hours to days</td>
+                            <td>Minutes to hours</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Change Failure Rate</strong></td>
+                            <td>30-45%</td>
+                            <td>0-15%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Team Collaboration</strong></td>
+                            <td>Siloed departments</td>
+                            <td>Cross-functional teams</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🤝 Collaboration Between Development and Operations</h2>
+            
+            <div class="practical-example">
+                <h4>Traditional Silos vs. DevOps Collaboration</h4>
+                <p>In traditional environments, development and operations teams often work in isolation, leading to the famous "it works on my machine" problem. DevOps breaks down these barriers.</p>
+            </div>
+
+            <h3>Key Collaboration Strategies</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>🎯 Shared Responsibility</h4>
+                    <p>Both teams share responsibility for application performance in production, not just deployment.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>📞 Communication Channels</h4>
+                    <p>Regular standups, shared Slack channels, and cross-team retrospectives improve communication.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🔧 Shared Tools</h4>
+                    <p>Using common monitoring, logging, and deployment tools creates shared visibility.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>📚 Knowledge Sharing</h4>
+                    <p>Cross-training sessions and documentation sharing improve team understanding.</p>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <strong>Cultural Shift Example:</strong> Netflix's "You build it, you run it" philosophy means developers are responsible for their code in production, including being on-call for issues. This creates natural collaboration between dev and ops teams.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📦 Microservices and Containers</h2>
+            
+            <div class="practical-example">
+                <h4>From Monolith to Microservices</h4>
+                <p>DevOps strongly supports the microservices architecture pattern, where applications are broken down into small, independent services that can be developed, deployed, and scaled independently.</p>
+            </div>
+
+            <h3>Microservices Benefits in DevOps</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>🔧 Independent Deployment</h4>
+                    <p>Each service can be deployed independently, reducing deployment risks and enabling faster releases.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🎯 Technology Diversity</h4>
+                    <p>Different services can use different technologies, allowing teams to choose the best tool for each job.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>📈 Scalability</h4>
+                    <p>Scale individual services based on demand rather than scaling the entire application.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🛡️ Fault Isolation</h4>
+                    <p>Failures in one service don't necessarily bring down the entire application.</p>
+                </div>
+            </div>
+
+            <h3>Containers in DevOps</h3>
+            <div class="command-box">
+                <div class="prompt">Example Docker Commands:</div>
+                <div class="command"># Build a Docker image</div>
+                <div class="command">docker build -t my-app:latest .</div>
+                <br>
+                <div class="command"># Run a container</div>
+                <div class="command">docker run -p 8080:8080 my-app:latest</div>
+                <br>
+                <div class="command"># List running containers</div>
+                <div class="command">docker ps</div>
+                <br>
+                <div class="command"># View container logs</div>
+                <div class="command">docker logs container-id</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🗂️ Version Control System</h2>
+            
+            <div class="practical-example">
+                <h4>Why Version Control is Critical in DevOps</h4>
+                <p>Version control systems like Git are the foundation of DevOps practices. They enable collaboration, track changes, and support automated workflows.</p>
+            </div>
+
+            <h3>Git in DevOps Workflow</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>🌿 Branching Strategy</h4>
+                    <p>Feature branches, development branches, and main/production branches organize development work.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🔄 Merge Requests</h4>
+                    <p>Code review process ensures quality and knowledge sharing before merging changes.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🏷️ Tagging & Releases</h4>
+                    <p>Git tags mark specific versions for deployment and rollback purposes.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🤖 CI/CD Integration</h4>
+                    <p>Automated pipelines trigger on Git events like pushes and merges.</p>
+                </div>
+            </div>
+
+            <div class="command-box">
+                <div class="prompt">Common Git Workflow Commands:</div>
+                <div class="command"># Create and switch to feature branch</div>
+                <div class="command">git checkout -b feature/new-cart-functionality</div>
+                <br>
+                <div class="command"># Stage and commit changes</div>
+                <div class="command">git add .</div>
+                <div class="command">git commit -m "Add cart functionality with tests"</div>
+                <br>
+                <div class="command"># Push to remote repository</div>
+                <div class="command">git push origin feature/new-cart-functionality</div>
+                <br>
+                <div class="command"># Create pull request (via GitHub/GitLab interface)</div>
+                <div class="command"># After review and approval, merge to main branch</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ DevOps Technical Challenges</h2>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>🏗️ Cultural Resistance</h4>
+                    <p>Teams may resist changing established processes and workflows. Requires strong leadership and change management.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🔧 Tool Complexity</h4>
+                    <p>DevOps involves many tools and technologies. Managing tool sprawl and integration can be overwhelming.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>🔐 Security Concerns</h4>
+                    <p>Rapid deployment cycles can introduce security vulnerabilities if not properly managed (DevSecOps).</p>
+                </div>
+                <div class="concept-card">
+                    <h4>📊 Monitoring Complexity</h4>
+                    <p>Microservices architecture increases monitoring
