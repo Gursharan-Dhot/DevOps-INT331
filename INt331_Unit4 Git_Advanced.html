@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Git - Hour 1 Training Material</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            border-left: 4px solid #667eea;
+        }
+
+        .command {
+            color: #68d391;
+            font-weight: bold;
+        }
+
+        .output {
+            color: #fbb6ce;
+            font-style: italic;
+        }
+
+        .highlight {
+            background: #fed7d7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #c53030;
+            font-weight: bold;
+        }
+
+        .workflow {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .workflow h2 {
+            color: white;
+            border-bottom: 3px solid white;
+        }
+
+        .step {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #68d391;
+        }
+
+        .step h3 {
+            color: #68d391;
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .branch-diagram {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .branch-line {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .arrow {
+            font-size: 1.5em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+
+        .tips {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tips h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .tips ul {
+            color: #856404;
+            padding-left: 20px;
+        }
+
+        .interactive-demo {
+            background: #e8f5e8;
+            border: 2px solid #68d391;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .interactive-demo h3 {
+            color: #2f855a;
+            margin-bottom: 15px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #667eea;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -27px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <svg class="icon" viewBox="0 0 100 100" style="width: 100px; height: 100px;">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="3"/>
+                <path d="M20,50 Q50,20 80,50 Q50,80 20,50" fill="white" opacity="0.8"/>
+                <text x="50" y="55" text-anchor="middle" fill="#667eea" font-size="20" font-weight="bold">Git</text>
+            </svg>
+            <h1>Advanced Git Mastery</h1>
+            <p>Hour 1: Source Code Management, Comparisons, Branching & Advanced Operations</p>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <svg class="icon" viewBox="0 0 100 100">
+                    <rect x="10" y="20" width="80" height="60" fill="#667eea" opacity="0.8" rx="5"/>
+                    <rect x="20" y="30" width="60" height="5" fill="white"/>
+                    <rect x="20" y="40" width="50" height="5" fill="white"/>
+                    <rect x="20" y="50" width="70" height="5" fill="white"/>
+                    <rect x="20" y="60" width="45" height="5" fill="white"/>
+                </svg>
+                <h2>Source Code Management with Git</h2>
+                <p>Git is a distributed version control system that tracks changes in source code during software development. It's designed for coordinating work among programmers and tracking changes in files.</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    <li><strong>Distributed:</strong> Every developer has a complete copy of the project history</li>
+                    <li><strong>Branching:</strong> Create independent lines of development</li>
+                    <li><strong>Merging:</strong> Combine changes from different branches</li>
+                    <li><strong>Staging:</strong> Prepare changes before committing</li>
+                </ul>
+
+                <div class="code-block">
+<span class="command">git init</span>                    <span class="output"># Initialize a new Git repository</span>
+<span class="command">git clone [url]</span>             <span class="output"># Clone a remote repository</span>
+<span class="command">git status</span>                  <span class="output"># Check repository status</span>
+<span class="command">git add [file]</span>              <span class="output"># Stage files for commit</span>
+<span class="command">git commit -m "message"</span>     <span class="output"># Commit staged changes</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <svg class="icon" viewBox="0 0 100 100">
+                    <rect x="10" y="20" width="30" height="60" fill="#68d391" opacity="0.8" rx="3"/>
+                    <rect x="60" y="20" width="30" height="60" fill="#fbb6ce" opacity="0.8" rx="3"/>
+                    <path d="M45,30 L55,30 M45,40 L55,40 M45,50 L55,50" stroke="#667eea" stroke-width="2"/>
+                </svg>
+                <h2>Comparison Commands</h2>
+                <p>Git provides powerful comparison tools to see differences between commits, branches, and working directory states.</p>
+
+                <table class="comparison-table">
+                    <tr>
+                        <th>Command</th>
+                        <th>Description</th>
+                        <th>Use Case</th>
+                    </tr>
+                    <tr>
+                        <td><code>git diff</code></td>
+                        <td>Show unstaged changes</td>
+                        <td>Review changes before staging</td>
+                    </tr>
+                    <tr>
+                        <td><code>git diff --staged</code></td>
+                        <td>Show staged changes</td>
+                        <td>Review changes before committing</td>
+                    </tr>
+                    <tr>
+                        <td><code>git diff HEAD~1</code></td>
+                        <td>Compare with previous commit</td>
+                        <td>See what changed in last commit</td>
+                    </tr>
+                    <tr>
+                        <td><code>git diff branch1 branch2</code></td>
+                        <td>Compare two branches</td>
+                        <td>See differences between branches</td>
+                    </tr>
+                </table>
+
+                <div class="code-block">
+<span class="command">git diff --stat</span>             <span class="output"># Show file statistics</span>
+<span class="command">git diff --name-only</span>        <span class="output"># Show only file names</span>
+<span class="command">git diff --word-diff</span>        <span class="output"># Show word-level changes</span>
+<span class="command">git diff [commit1] [commit2]</span> <span class="output"># Compare specific commits</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <svg class="icon" viewBox="0 0 100 100">
+                    <circle cx="25" cy="50" r="8" fill="#667eea"/>
+                    <circle cx="50" cy="30" r="8" fill="#68d391"/>
+                    <circle cx="75" cy="50" r="8" fill="#fbb6ce"/>
+                    <circle cx="50" cy="70" r="8" fill="#fed7d7"/>
+                    <path d="M25,50 L50,30 M25,50 L50,70 M50,30 L75,50 M50,70 L75,50" stroke="#333" stroke-width="2"/>
+                </svg>
+                <h2>Branching Strategies</h2>
+                <p>Branching allows you to create separate lines of development, enabling parallel work and feature isolation.</p>
+
+                <div class="branch-diagram">
+                    <div>
+                        <span class="branch-line">main</span>
+                        <span class="arrow">→</span>
+                        <span class="branch-line">feature/login</span>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <span class="branch-line">develop</span>
+                        <span class="arrow">→</span>
+                        <span class="branch-line">hotfix/bug-123</span>
+                    </div>
+                </div>
+
+                <div class="code-block">
+<span class="command">git branch</span>                   <span class="output"># List all branches</span>
+<span class="command">git branch [branch-name]</span>     <span class="output"># Create new branch</span>
+<span class="command">git checkout [branch-name]</span>   <span class="output"># Switch to branch</span>
+<span class="command">git checkout -b [branch-name]</span> <span class="output"># Create and switch to branch</span>
+<span class="command">git branch -d [branch-name]</span>   <span class="output"># Delete branch</span>
+<span class="command">git branch -m [old] [new]</span>     <span class="output"># Rename branch</span>
+                </div>
+
+                <div class="tips">
+                    <h3>💡 Branching Best Practices</h3>
+                    <ul>
+                        <li>Use descriptive branch names (feature/user-auth, bugfix/login-error)</li>
+                        <li>Keep branches focused on single features or fixes</li>
+                        <li>Regularly sync with main branch</li>
+                        <li>Delete merged branches to keep repository clean</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <svg class="icon" viewBox="0 0 100 100">
+                    <path d="M10,70 Q30,30 50,70 Q70,30 90,70" stroke="#667eea" stroke-width="4" fill="none"/>
+                    <circle cx="30" cy="50" r="6" fill="#68d391"/>
+                    <circle cx="70" cy="50" r="6" fill="#fbb6ce"/>
+                    <circle cx="50" cy="70" r="6" fill="#667eea"/>
+                </svg>
+                <h2>Merging Techniques</h2>
+                <p>Merging combines changes from different branches into a single branch, integrating parallel development work.</p>
+
+                <h3>Types of Merges:</h3>
+                <div class="step">
+                    <h4>Fast-Forward Merge</h4>
+                    <p>When target branch hasn't diverged from source branch</p>
+                    <div class="code-block">
+<span class="command">git merge feature-branch</span>     <span class="output"># Fast-forward merge</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h4>Three-Way Merge</h4>
+                    <p>When both branches have diverged, creates a merge commit</p>
+                    <div class="code-block">
+<span class="command">git merge --no-ff feature-branch</span> <span class="output"># Force merge commit</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h4>Squash Merge</h4>
+                    <p>Combines all commits from feature branch into single commit</p>
+                    <div class="code-block">
+<span class="command">git merge --squash feature-branch</span> <span class="output"># Squash merge</span>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🔄 Merge Conflict Resolution</h3>
+                    <p>When Git can't automatically merge changes:</p>
+                    <ol>
+                        <li>Edit conflicted files manually</li>
+                        <li>Remove conflict markers (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======, &gt;&gt;&gt;&gt;&gt;&gt;&gt;)</li>
+                        <li>Stage resolved files with <code>git add</code></li>
+                        <li>Complete merge with <code>git commit</code></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card">
+                <svg class="icon" viewBox="0 0 100 100">
+                    <path d="M10,80 L90,20" stroke="#667eea" stroke-width="3"/>
+                    <circle cx="20" cy="70" r="5" fill="#68d391"/>
+                    <circle cx="35" cy="55" r="5" fill="#68d391"/>
+                    <circle cx="50" cy="40" r="5" fill="#68d391"/>
+                    <circle cx="65" cy="60" r="5" fill="#fbb6ce"/>
+                    <circle cx="80" cy="30" r="5" fill="#667eea"/>
+                </svg>
+                <h2>Rebasing</h2>
+                <p>Rebasing rewrites commit history by moving commits from one branch to another, creating a linear history.</p>
+
+                <div class="code-block">
+<span class="command">git rebase main</span>              <span class="output"># Rebase current branch onto main</span>
+<span class="command">git rebase -i HEAD~3</span>         <span class="output"># Interactive rebase last 3 commits</span>
+<span class="command">git rebase --continue</span>        <span class="output"># Continue after resolving conflicts</span>
+<span class="command">git rebase --abort</span>           <span class="output"># Abort rebase operation</span>
+                </div>
+
+                <h3>Rebase vs Merge:</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Rebase</th>
+                        <th>Merge</th>
+                    </tr>
+                    <tr>
+                        <td>History</td>
+                        <td>Linear, clean</td>
+                        <td>Shows true history</td>
+                    </tr>
+                    <tr>
+                        <td>Commits</td>
+                        <td>Rewrites commits</td>
+                        <td>Preserves original commits</td>
+                    </tr>
+                    <tr>
+                        <td>Use Case</td>
+                        <td>Private branches</td>
+                        <td>Shared branches</td>
+                    </tr>
+                </table>
+
+                <div class="tips">
+                    <h3>⚠️ Rebase Golden Rule</h3>
+                    <ul>
+                        <li>Never rebase commits that have been pushed to shared repositories</li>
+                        <li>Only rebase private, local branches</li>
+                        <li>Use rebase for cleaning up commit history before merging</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <svg class="icon" viewBox="0 0 100 100">
+                    <rect x="20" y="20" width="60" height="60" fill="#fed7d7" opacity="0.8" rx="5"/>
+                    <rect x="30" y="30" width="40" height="8" fill="#667eea"/>
+                    <rect x="30" y="45" width="30" height="8" fill="#68d391"/>
+                    <rect x="30" y="60" width="50" height="8" fill="#fbb6ce"/>
+                    <text x="50" y="95" text-anchor="middle" font-size="12" fill="#333">STASH</text>
+                </svg>
+                <h2>Stashing</h2>
+                <p>Stashing temporarily saves your uncommitted changes, allowing you to work on something else and then restore them later.</p>
+
+                <div class="code-block">
+<span class="command">git stash</span>                    <span class="output"># Stash current changes</span>
+<span class="command">git stash save "message"</span>     <span class="output"># Stash with message</span>
+<span class="command">git stash list</span>               <span class="output"># List all stashes</span>
+<span class="command">git stash apply</span>              <span class="output"># Apply latest stash</span>
+<span class="command">git stash apply stash@{1}</span>    <span class="output"># Apply specific stash</span>
+<span class="command">git stash pop</span>                <span class="output"># Apply and remove stash</span>
+<span class="command">git stash drop</span>               <span class="output"># Delete latest stash</span>
+<span class="command">git stash clear</span>              <span class="output"># Delete all stashes</span>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🗃️ Stash Use Cases</h3>
+                    <ul>
+                        <li>Switch branches with uncommitted changes</li>
+                        <li>Pull updates from remote repository</li>
+                        <li>Quickly fix urgent bugs without committing current work</li>
+                        <li>Experiment with code without losing current progress</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <svg class="icon" viewBox="0 0 100 100">
+                    <rect x="10" y="40" width="80" height="20" fill="#667eea" opacity="0.8" rx="10"/>
+                    <text x="50" y="55" text-anchor="middle" fill="white" font-size="14" font-weight="bold">v1.0</text>
+                    <circle cx="25" cy="25" r="8" fill="#68d391"/>
+                    <circle cx="50" cy="25" r="8" fill="#fbb6ce"/>
+                    <circle cx="75" cy="25" r="8" fill="#fed7d7"/>
+                    <path d="M25,33 L25,40 M50,33 L50,40 M75,33 L75,40" stroke="#333" stroke-width="2"/>
+                </svg>
+                <h2>Tagging</h2>
+                <p>Tags are used to mark specific commits as important milestones, typically for releases or versions.</p>
+
+                <h3>Types of Tags:</h3>
+                <div class="step">
+                    <h4>Lightweight Tags</h4>
+                    <p>Simple pointer to a commit</p>
+                    <div class="code-block">
+<span class="command">git tag v1.0</span>                 <span class="output"># Create lightweight tag</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h4>Annotated Tags</h4>
+                    <p>Full objects with metadata (recommended)</p>
+                    <div class="code-block">
+<span class="command">git tag -a v1.0 -m "Release v1.0"</span> <span class="output"># Create annotated tag</span>
+                    </div>
+                </div>
+
+                <div class="code-block">
+<span class="command">git tag</span>                      <span class="output"># List all tags</span>
+<span class="command">git tag -l "v1.*"</span>            <span class="output"># List tags matching pattern</span>
+<span class="command">git show v1.0</span>                <span class="output"># Show tag information</span>
+<span class="command">git push origin v1.0</span>         <span class="output"># Push specific tag</span>
+<span class="command">git push origin --tags</span>       <span class="output"># Push all tags</span>
+<span class="command">git tag -d v1.0</span>              <span class="output"># Delete local tag</span>
+<span class="command">git push origin :refs/tags/v1.0</span> <span class="output"># Delete remote tag</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="workflow">
+            <h2>Complete Git Workflow</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>1. Setup & Clone</h3>
+                    <div class="code-block">
+<span class="command">git config --global user.name "Your Name"</span>
+<span class="command">git config --global user.email "your.email@example.com"</span>
+<span class="command">git clone https://github.com/user/repo.git</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <h3>2. Create Feature Branch</h3>
+                    <div class="code-block">
+<span class="command">git checkout -b feature/new-feature</span>
+<span class="command">git push -u origin feature/new-feature</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <h3>3. Make Changes & Commit</h3>
+                    <div class="code-block">
+<span class="command">git add .</span>
+<span class="command">git commit -m "Add new feature implementation"</span>
+<span class="command">git push origin feature/new-feature</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <h3>4. Sync with Main</h3>
+                    <div class="code-block">
+<span class="command">git checkout main</span>
+<span class="command">git pull origin main</span>
+<span class="command">git checkout feature/new-feature</span>
+<span class="command">git rebase main</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <h3>5. Merge & Tag</h3>
+                    <div class="code-block">
+<span class="command">git checkout main</span>
+<span class="command">git merge feature/new-feature</span>
+<span class="command">git tag -a v1.1 -m "Release v1.1"</span>
+<span class="command">git push origin main --tags</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tips">
+            <h3>🎯 Key Takeaways for Faculty</h3>
+            <ul>
+                <li>Git is essential for collaborative software development</li>
+                <li>Understanding branching strategies improves code organization</li>
+                <li>Regular commits with clear messages maintain project history</li>
+                <li>Rebasing creates cleaner history but should be used carefully</li>
+                <li>Stashing provides flexibility for handling interruptions</li>
+                <li>Tags mark important milestones and releases</li>
+                <li>Comparison commands help understand code evolution</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Advanced Git Training - Hour 1 Complete | Next: DevOps Trends & Ecosystem</p>
+        </div>
+    </div>
+</body>
+</html>

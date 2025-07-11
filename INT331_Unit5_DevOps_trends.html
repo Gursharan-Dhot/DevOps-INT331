@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Trends & Ecosystem - Hour 2 Training Material</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .devops-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .market-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .skill-category {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .skill-category h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .skill-item {
+            background: white;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .skill-level {
+            display: flex;
+            gap: 2px;
+        }
+
+        .skill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dee2e6;
+        }
+
+        .skill-dot.active {
+            background: #667eea;
+        }
+
+        .pipeline-container {
+            background: #2d3748;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 1000px;
+            padding: 20px 0;
+        }
+
+        .pipeline-stage {
+            background: #4a5568;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 150px;
+            position: relative;
+        }
+
+        .pipeline-stage::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            color: #68d391;
+        }
+
+        .pipeline-stage:last-child::after {
+            display: none;
+        }
+
+        .pipeline-stage.active {
+            background: #667eea;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .tools-ecosystem {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+        }
+
+        .tool-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .tool-description {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .role-responsibilities {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .role-responsibilities h2 {
+            color: white;
+            border-bottom: 3px solid white;
+            margin-bottom: 20px;
+        }
+
+        .responsibility-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .responsibility-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #68d391;
+        }
+
+        .responsibility-item h3 {
+            color: #68d391;
+            margin-bottom: 10px;
+        }
+
+        .trend-timeline {
+            position: relative;
+            padding: 20px 0;
+            margin: 20px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #667eea;
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+
+        .timeline-item:nth-child(odd) {
+            text-align: right;
+            padding-right: 60%;
+        }
+
+        .timeline-item:nth-child(even) {
+            text-align: left;
+            padding-left: 60%;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            border: 4px solid white;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .timeline-year {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .benefit-card {
+            background: #e8f5e8;
+            border: 2px solid #68d391;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .benefit-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .benefit-title {
+            font-weight: bold;
+            color: #2f855a;
+            margin-bottom: 10px;
+        }
+
+        .interactive-demo {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .interactive-demo h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            border-left: 4px solid #667eea;
+        }
+
+        .command {
+            color: #68d391;
+            font-weight: bold;
+        }
+
+        .output {
+            color: #fbb6ce;
+            font-style: italic;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .pipeline-flow {
+                flex-direction: column;
+                min-width: auto;
+            }
+            
+            .pipeline-stage::after {
+                content: '↓';
+                right: 50%;
+                bottom: -30px;
+                top: auto;
+                transform: translateX(50%);
+            }
+            
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) {
+                text-align: left;
+                padding-left: 60px;
+                padding-right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <svg class="devops-icon" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="3"/>
+                <path d="M30,50 Q50,30 70,50 Q50,70 30,50" fill="white" opacity="0.6"/>
+                <path d="M70,50 Q50,30 30,50 Q50,70 70,50" fill="white" opacity="0.4"/>
+                <circle cx="50" cy="50" r="15" fill="white" opacity="0.8"/>
+                <text x="50" y="55" text-anchor="middle" fill="#667eea" font-size="12" font-weight="bold">∞</text>
+            </svg>
+            <h1>DevOps Trends & Ecosystem</h1>
+            <p>Hour 2: Market Trends, Skills, Pipeline, Tools & Engineer Role</p>
+        </div>
+
+        <div class="content-grid">
+            <div class="card full-width">
+                <h2>🚀 DevOps Market Trends 2025</h2>
+                <p>The DevOps market continues to experience explosive growth, driven by digital transformation initiatives and cloud adoption across industries.</p>
+                
+                <div class="market-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">$24.5B</div>
+                        <div class="stat-label">Global DevOps Market Size (2025)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">22.9%</div>
+                        <div class="stat-label">Annual Growth Rate (CAGR)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">83%</div>
+                        <div class="stat-label">Organizations Using DevOps</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">200%</div>
+                        <div class="stat-label">Faster Deployment Frequency</div>
+                    </div>
+                </div>
+
+                <div class="trend-timeline">
+                    <div class="timeline-line"></div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2020-2021</div>
+                            <h3>COVID-19 Acceleration</h3>
+                            <p>Pandemic accelerated digital transformation and remote work, increasing DevOps adoption by 67%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2022-2023</div>
+                            <h3>AI/ML Integration</h3>
+                            <p>AIOps and MLOps emerged as key trends, with 45% of organizations integrating AI into DevOps</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2024-2025</div>
+                            <h3>Platform Engineering</h3>
+                            <p>Rise of platform engineering teams and internal developer platforms (IDPs)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2025+</div>
+                            <h3>GitOps & Security</h3>
+                            <p>GitOps adoption and shift-left security practices becoming mainstream</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-title">Speed</div>
+                        <p>Deploy 46x more frequently with DevOps practices</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🎯</div>
+                        <div class="benefit-title">Quality</div>
+                        <p>5x lower failure rates and faster recovery</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💰</div>
+                        <div class="benefit-title">Cost</div>
+                        <p>20-30% reduction in IT costs</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔄</div>
+                        <div class="benefit-title">Agility</div>
+                        <p>Respond to market changes 50% faster</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Essential DevOps Engineer Skills</h2>
+                <p>Modern DevOps engineers need a diverse skill set spanning technical, operational, and soft skills.</p>
+                
+                <div class="skills-grid">
+                    <div class="skill-category">
+                        <h3>Technical Skills</h3>
+                        <div class="skill-item">
+                            <span>Linux/Unix Systems</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span>Cloud Platforms (AWS/Azure/GCP)</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span>Containerization (Docker/Kubernetes)</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span>Infrastructure as Code</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h3>Programming & Scripting</h3>
+                        <div class="skill-item">
+                            <span>Python/Go/JavaScript</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span>Shell Scripting (Bash/PowerShell)</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span>YAML/JSON Configuration</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h3>Soft Skills</h3>
+                        <div class="skill-item">
+                            <span>Communication</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span>Problem Solving</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span>Collaboration</span>
+                            <div class="skill-level">
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot active"></div>
+                                <div class="skill-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>💼 Career Path Progression</h3>
+                    <p><strong>Junior DevOps Engineer (0-2 years)</strong>: Focus on basic automation and CI/CD</p>
+                    <p><strong>DevOps Engineer (2-5 years)</strong>: Infrastructure management and advanced tooling</p>
+                    <p><strong>Senior DevOps Engineer (5+ years)</strong>: Architecture design and team leadership</p>
+                    <p><strong>DevOps Architect/Manager (7+ years)</strong>: Strategy and organizational transformation</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔄 DevOps Delivery Pipeline</h2>
+                <p>The DevOps pipeline automates the software delivery process from code commit to production deployment.</p>
+                
+                <div class="pipeline-container">
+                    <h3 style="margin-bottom: 20px;">Complete CI/CD Pipeline Flow</h3>
+                    <div class="pipeline-flow">
+                        <div class="pipeline-stage active">
+                            <h4>Plan</h4>
+                            <p>Requirements</p>
+                            <p>User Stories</p>
+                        </div>
+                        <div class="pipeline-stage">
+                            <h4>Code</h4>
+                            <p>Development</p>
+                            <p>Version Control</p>
+                        </div>
+                        <div class="pipeline-stage">
+                            <h4>Build</h4>
+                            <p>Compile</p>
+                            <p>Package</p>
+                        </div>
+                        <div class="pipeline-stage">
+                            <h4>Test</h4>
+                            <p>Unit Tests</p>
+                            <p>Integration</p>
+                        </div>
+                        <div class="pipeline-stage">
+                            <h4>Deploy</h4>
+                            <p>Staging</p>
+                            <p>Production</p>
+                        </div>
+                        <div class="pipeline-stage">
+                            <h4>Monitor</h4>
+                            <p>Metrics</p>
+                            <p>Feedback</p>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="comparison-table">
+                    <tr>
+                        <th>Stage</th>
+                        <th>Tools</th>
+                        <th>Activities</th>
+                        <th>Duration</th>
+                    </tr>
+                    <tr>
+                        <td>Planning</td>
+                        <td>Jira, Azure DevOps, Trello</td>
+                        <td>Sprint planning, backlog grooming</td>
+                        <td>1-2 weeks</td>
+                    </tr>
+                    <tr>
+                        <td>Coding</td>
+                        <td>Git, GitHub, GitLab</td>
+                        <td>Feature development, code reviews</td>
+                        <td>Continuous</td>
+                    </tr>
+                    <tr>
+                        <td>Building</td>
+                        <td>Maven, Gradle, npm</td>
+                        <td>Compilation, dependency resolution</td>
+                        <td>5-15 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Testing</td>
+                        <td>JUnit, Selenium, Jest</td>
+                        <td>Unit, integration, E2E testing</td>
+                        <td>10-30 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Deployment</td>
+                        <td>Jenkins, GitHub Actions</td>
+                        <td>Staging, production deployment</td>
+                        <td>5-20 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Monitoring</td>
+                        <td>Nagios, Prometheus, ELK</td>
+                        <td>Performance monitoring, alerting</td>
+                        <td>24/7</td>
+                    </tr>
+                </table>
+
+                <div class="code-block">
+<span class="command"># Example Jenkins Pipeline</span>
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'docker build -t myapp .'
+                sh 'docker run -d -p 8080:8080 myapp'
+            }
+        }
+    }
+}
+                </div>
+            </div>
+
+            <div class="card full-width">
+                <h2>🛠️ DevOps Tools Ecosystem</h2>
+                <p>The DevOps ecosystem comprises various tools that enable automation, collaboration, and continuous delivery.</p>
+                
+                <div class="tools-ecosystem">
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#f14e32"/>
+                            <path d="M30,50 Q50,30 70,50 Q50,70 30,50" fill="white"/>
+                            <text x="50" y="55" text-anchor="middle" fill="#f14e32" font-size="14" font-weight="bold">Git</text>
+                        </svg>
+                        <div class="tool-name">Git</div>
+                        <div class="tool-description">Distributed version control system for tracking changes in source code</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <rect x="20" y="30" width="60" height="40" fill="#0db7ed" rx="5"/>
+                            <rect x="30" y="20" width="40" height="20" fill="#0db7ed" rx="3"/>
+                            <text x="50" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Docker</text>
+                        </svg>
+                        <div class="tool-name">Docker</div>
+                        <div class="tool-description">Platform for developing, shipping, and running applications in containers</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <rect x="20" y="20" width="60" height="60" fill="#43a047" rx="10"/>
+                            <circle cx="35" cy="35" r="5" fill="white"/>
+                            <circle cx="65" cy="35" r="5" fill="white"/>
+                            <rect x="30" y="50" width="40" height="5" fill="white" rx="2"/>
+                            <text x="50" y="85" text-anchor="middle" font-size="10" font-weight="bold">Selenium</text>
+                        </svg>
+                        <div class="tool-name">Selenium</div>
+                        <div class="tool-description">Web application testing framework for automated browser testing</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <rect x="15" y="30" width="70" height="40" fill="#c71a36" rx="5"/>
+                            <text x="50" y="55" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Maven</text>
+                        </svg>
+                        <div class="tool-name">Maven</div>
+                        <div class="tool-description">Build automation and project management tool for Java projects</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="35" fill="#d33833"/>
+                            <rect x="30" y="30" width="40" height="40" fill="white" rx="5"/>
+                            <text x="50" y="55" text-anchor="middle" fill="#d33833" font-size="12" font-weight="bold">Jenkins</text>
+                        </svg>
+                        <div class="tool-name">Jenkins</div>
+                        <div class="tool-description">Open-source automation server for continuous integration and deployment</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="35" fill="#ffae1a"/>
+                            <circle cx="50" cy="50" r="20" fill="white"/>
+                            <text x="50" y="55" text-anchor="middle" fill="#ffae1a" font-size="10" font-weight="bold">Puppet</text>
+                        </svg>
+                        <div class="tool-name">Puppet</div>
+                        <div class="tool-description">Configuration management tool for infrastructure automation</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <rect x="20" y="35" width="60" height="30" fill="#ee0000" rx="5"/>
+                            <text x="50" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Ansible</text>
+                        </svg>
+                        <div class="tool-name">Ansible</div>
+                        <div class="tool-description">Agentless automation platform for configuration management and deployment</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <path d="M50,20 L70,35 L70,65 L50,80 L30,65 L30,35 Z" fill="#326ce5"/>
+                            <text x="50" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">K8s</text>
+                        </svg>
+                        <div class="tool-name">Kubernetes</div>
+                        <div class="tool-description">Container orchestration platform for managing containerized applications</div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <svg class="tool-icon" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="35" fill="#73c442"/>
+                            <circle cx="40" cy="40" r="8" fill="white"/>
+                            <circle cx="60" cy="60" r="8" fill="white"/>
+                            <text x="50" y="85" text-anchor="middle" font-size="10" font-weight="bold">Nagios</text>
+                        </svg>
+                        <div class="tool-name">Nagios</div>
+                        <div class="tool-description">Infrastructure monitoring system for tracking system performance and availability</div>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🔗 Tool Integration Example</h3>
+                    <p><strong>Complete DevOps Toolchain:</strong></p>
+                    <p>Git (Source) → Jenkins (CI/CD) → Maven (Build) → Selenium (Test) → Docker (Package) → Kubernetes (Deploy) → Nagios (Monitor)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="role-responsibilities">
+            <h2>👨‍💻 Role of a DevOps Engineer</h2>
+            <p>DevOps engineers bridge the gap between development and operations teams, enabling faster, more reliable software delivery.</p>
+            
+            <div class="responsibility-grid">
+                <div class="responsibility-item">
+                    <h3>🏗️ Infrastructure Management</h3>
+                    <ul>
+                        <li>Design and maintain scalable infrastructure</li>
+                        <li>Implement Infrastructure as Code (IaC)</li>
+                        <li>Manage cloud resources and costs</li>
+                        <li>Ensure high availability and disaster recovery</li>
+                    </ul>
+                </div>
+                
+                <div class="responsibility-item">
+                    <h3>🔄 CI/CD Pipeline Development</h3>
+                    <ul>
+                        <li>Build automated deployment pipelines</li>
+                        <li>Configure build and test automation</li>
+                        <li>Implement continuous monitoring</li>
+                        <li>Optimize deployment processes</li>
+                    </ul>
+                </div>
+                
+                <div class="responsibility-item">
+                    <h3>🔒 Security & Compliance</h3>
+                    <ul>
+                        <li>Implement security best practices</li>
+                        <li>Manage access controls and permissions</li>
+                        <li>Ensure regulatory compliance</li>
+                        <li>Conduct security audits and assessments</li>
+                    </ul>
+                </div>
+                
+                <div class="responsibility-item">
+                    <h3>📊 Monitoring & Troubleshooting</h3>
+                    <ul>
+                        <li>Set up comprehensive monitoring systems</li>
+                        <li>Create dashboards and alerts</li>
+                        <li>Perform root cause analysis</li>
+                        <li>Optimize system performance</li>
+                    </ul>
+                </div>
+                
+                <div class="responsibility-item">
+                    <h3>🤝 Collaboration & Communication</h3>
+                    <ul>
+                        <li>Work with development and operations teams</li>
+                        <li>Facilitate cross-functional collaboration</li>
+                        <li>Document processes and procedures</li>
+                        <li>Provide technical training and support</li>
+                    </ul>
+                </div>
+                
+                <div class="responsibility-item">
+                    <h3>⚡ Automation & Optimization</h3>
+                    <ul>
+                        <li>Automate repetitive manual tasks</li>
+                        <li>Optimize resource utilization</li>
+                        <li>Improve deployment frequency</li>
+                        <li>Reduce time to market</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>🏢 DevOps Organizational Impact</h2>
+                <p>DevOps transformation affects the entire organization, not just IT teams.</p>
+                
+                <table class="comparison-table">
+                    <tr>
+                        <th>Traditional IT</th>
+                        <th>DevOps Culture</th>
+                        <th>Impact</th>
+                    </tr>
+                    <tr>
+                        <td>Siloed teams</td>
+                        <td>Cross-functional collaboration</td>
+                        <td>Better communication</td>
+                    </tr>
+                    <tr>
+                        <td>Manual processes</td>
+                        <td>Automated workflows</td>
+                        <td>Reduced errors</td>
+                    </tr>
+                    <tr>
+                        <td>Quarterly releases</td>
+                        <td>Continuous deployment</td>
+                        <td>Faster time to market</td>
+                    </tr>
+                    <tr>
+                        <td>Reactive monitoring</td>
+                        <td>Proactive observability</td>
+                        <td>Improved reliability</td>
+                    </tr>
+                    <tr>
+                        <td>Fear of change</td>
+                        <td>Embrace experimentation</td>
+                        <td>Innovation culture</td>
+                    </tr>
+                </table>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📈</div>
+                        <div class="benefit-title">Business Value</div>
+                        <p>Faster feature delivery and customer feedback loops</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">👥</div>
+                        <div class="benefit-title">Team Satisfaction</div>
+                        <p>Reduced stress and improved work-life balance</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎓 Learning Path for Faculty</h2>
+                <p>Structured approach to teaching DevOps concepts effectively.</p>
+                
+                <div class="timeline-item">
+                    <h3>Week 1-2: Foundations</h3>
+                    <ul>
+                        <li>DevOps culture and principles</li>
+                        <li>Version control with Git</li>
+                        <li>Basic Linux command line</li>
+                        <li>Introduction to cloud platforms</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-item">
+                    <h3>Week 3-4: Automation</h3>
+                    <ul>
+                        <li>Build automation with Maven</li>
+                        <li>Containerization with Docker</li>
+                        <li>Basic scripting (Bash/Python)</li>
+                        <li>Infrastructure as Code concepts</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-item">
+                    <h3>Week 5-6: Pipeline Development</h3>
+                    <ul>
+                        <li>CI/CD with Jenkins</li>
+                        <li>Automated testing with Selenium</li>
+                        <li>Deployment strategies</li>
+                        <li>Configuration management</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-item">
+                    <h3>Week 7-8: Advanced Topics</h3>
+                    <ul>
+                        <li>Container orchestration with Kubernetes</li>
+                        <li>Monitoring with Nagios/Prometheus</li>
+                        <li>Security and compliance</li>
+                        <li>Performance optimization</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+<span class="command"># Hands-on Lab Setup</span>
+<span class="output"># 1. Set up local development environment</span>
+vagrant init ubuntu/bionic64
+vagrant up
+
+<span class="output"># 2. Install essential tools</span>
+sudo apt update
+sudo apt install git docker.io maven
+
+<span class="output"># 3. Configure Jenkins</span>
+docker run -d -p 8080:8080 jenkins/jenkins:lts
+
+<span class="output"># 4. Set up monitoring</span>
+docker run -d -p 3000:3000 grafana/grafana
+                </div>
+            </div>
+        </div>
+
+        <div class="interactive-demo">
+            <h3>🎯 Key Faculty Takeaways</h3>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔄</div>
+                    <div class="benefit-title">Cultural Shift</div>
+                    <p>DevOps is primarily about culture change, not just tools</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🛠️</div>
+                    <div class="benefit-title">Tool Ecosystem</div>
+                    <p>Understanding tool integration is crucial for success</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📊</div>
+                    <div class="benefit-title">Metrics Matter</div>
+                    <p>Measure everything to drive continuous improvement</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <div class="benefit-title">Start Small</div>
+                    <p>Begin with pilot projects and scale gradually</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 DevOps Trends & Ecosystem Training - Hour 2 Complete | Next: Working with Maven</p>
+        </div>
+    </div>
+</body>
+</html>
